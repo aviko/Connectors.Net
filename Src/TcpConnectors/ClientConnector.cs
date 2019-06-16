@@ -6,15 +6,11 @@ namespace TcpConnectors
 {
     public partial class ClientConnector
     {
-        public ClientConnector()
+        public ClientConnector(Dictionary<Tuple<int, int>, Type> typeMap)
         {
-
+            _typeMap = typeMap;
         }
 
-        public void Configure(Dictionary<Tuple<int, int>, Type> typeMap)
-        {
-
-        }
 
         public void Connect(string host, int port)
         {
@@ -26,7 +22,7 @@ namespace TcpConnectors
 
         public void Send(int module, int command, object packet)
         {
-            byte[] payloadBuf = BinaryConverter.BinaryConvert.SerializeObject(packet.ToString());
+            byte[] payloadBuf = BinaryConverter.BinaryConvert.SerializeObject(packet.GetType(), packet.ToString());
             byte[] output = new byte[2 + payloadBuf.Length];
 
             output[0] = (byte)module;
@@ -38,7 +34,7 @@ namespace TcpConnectors
 
         public async void SendRequest(int command, object packet)
         {
-            
+
         }
 
         public event Action<int, int, object> OnPacket;

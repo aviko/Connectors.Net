@@ -6,9 +6,9 @@ namespace TcpConnectors
 {
     public partial class ServerConnectors
     {
-        public ServerConnectors()
+        public ServerConnectors(Dictionary<Tuple<int, int>, Type> typeMap)
         {
-
+            _typeMap = typeMap;
         }
 
         public void Configure(Dictionary<Tuple<int, int>, Type> typeMap)

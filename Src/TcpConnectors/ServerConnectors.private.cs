@@ -15,6 +15,7 @@ namespace TcpConnectors
         private Socket _listenerSock;
         private int _nextContextId = 1;
         private ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
+        internal Dictionary<Tuple<int, int>, Type> _typeMap;
 
         private void StartListeningBlocking()
         {

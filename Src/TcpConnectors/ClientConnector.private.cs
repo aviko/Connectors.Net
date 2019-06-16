@@ -7,8 +7,8 @@ namespace TcpConnectors
 {
     partial class ClientConnector
     {
-        protected Socket _socket;
-
+        private Socket _socket;
+        private Dictionary<Tuple<int, int>, Type> _typeMap;
 
 
 

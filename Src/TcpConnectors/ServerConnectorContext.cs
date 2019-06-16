@@ -26,7 +26,9 @@ namespace TcpConnectors
             var destBuf = new byte[buf.Length - 2];
             Array.Copy(buf, 2, destBuf, 0, buf.Length - 2);
 
-            var packet = BinaryConverter.BinaryConvert.DeserializeObject<string>(destBuf);
+            _serverConnectors._typeMap.TryGetValue(new Tuple<int, int>(buf[0], buf[1]), out var type);
+
+            var packet = BinaryConverter.BinaryConvert.DeserializeObject(type , destBuf);
 
             Console.WriteLine($"module:{buf[0]}  command:{buf[1]} packet:{packet} ");
 
