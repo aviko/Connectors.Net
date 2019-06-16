@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TcpConnectors
 {
-    public class ClientConnector
+    public partial class ClientConnector
     {
         public ClientConnector()
         {
@@ -18,12 +18,22 @@ namespace TcpConnectors
 
         public void Connect(string host, int port)
         {
+            _socket = TcpSocketsUtils.Connect(host, port);
+            TcpSocketsUtils.Recv(_socket, OnRecv, OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
+
 
         }
 
         public void Send(int module, int command, object packet)
         {
+            byte[] payloadBuf = BinaryConverter.BinaryConvert.SerializeObject(packet.ToString());
+            byte[] output = new byte[2 + payloadBuf.Length];
 
+            output[0] = (byte)module;
+            output[1] = (byte)command;
+            Array.Copy(payloadBuf, 0, output, 2, payloadBuf.Length);
+
+            TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
         }
 
         public async void SendRequest(int command, object packet)

@@ -138,7 +138,7 @@ namespace TcpConnectors
         /// NOTE: you MUSTN'T do any heavy action in your called method.
         /// </summary>
         /// <param name="buf"></param>
-        public delegate bool OnRecvDlgt(byte[] buf); //return false - indicates stop recv loop
+        public delegate void OnRecvDlgt(byte[] buf);
         public delegate void OnExcpDlgt(Exception e);
 
         private const int MaxNumOfBytesInLengthField = 5;

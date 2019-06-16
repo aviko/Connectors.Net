@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace TcpConnectors
 {
@@ -17,7 +18,8 @@ namespace TcpConnectors
 
         public void Listen(int port)
         {
-
+            _port = port;
+            new Thread(StartListeningBlocking).Start();
         }
 
         public void Send(Func<ServerConnectorContext, bool> filter, int module, int command, object packet)

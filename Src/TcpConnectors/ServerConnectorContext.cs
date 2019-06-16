@@ -15,18 +15,26 @@ namespace TcpConnectors
         }
 
 
-        public Socket Socket { get; set; }
+        public Socket Socket { get; internal set; }
         public object Data { get; set; }
         public Dictionary<string, object> Map { get; set; } = new Dictionary<string, object>();
 
-        internal bool OnRecv(byte[] buf)
+        internal void OnRecv(byte[] buf)
         {
-            return true;
+            Console.WriteLine("ServerConnectorContext.OnRecv()");
+
+            var destBuf = new byte[buf.Length - 2];
+            Array.Copy(buf, 2, destBuf, 0, buf.Length - 2);
+
+            var packet = BinaryConverter.BinaryConvert.DeserializeObject<string>(destBuf);
+
+            Console.WriteLine($"module:{buf[0]}  command:{buf[1]} packet:{packet} ");
+
         }
 
         internal void OnExcp(Exception e)
         {
-
+            Console.WriteLine("ServerConnectorContext.OnExcp()");
         }
     }
 }
