@@ -22,15 +22,11 @@ namespace TcpConnectors
 
         public void Send(int module, int command, object packet)
         {
-            byte[] payloadBuf = BinaryConverter.BinaryConvert.SerializeObject(packet.GetType(), packet.ToString());
-            byte[] output = new byte[2 + payloadBuf.Length];
-
-            output[0] = (byte)module;
-            output[1] = (byte)command;
-            Array.Copy(payloadBuf, 0, output, 2, payloadBuf.Length);
+            byte[] output = ConnectorsUtils.SerializePacket(module, command, packet);
 
             TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
         }
+
 
         public async void SendRequest(int command, object packet)
         {
@@ -39,8 +35,8 @@ namespace TcpConnectors
 
         public event Action<int, int, object> OnPacket;
 
-        public event Action<int> OnDisconnect;
+        public event Action OnDisconnect;
 
-        public event Action<Exception> OnError;
+        public event Action<Exception> OnException;
     }
 }

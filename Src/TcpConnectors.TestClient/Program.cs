@@ -15,8 +15,28 @@ namespace TcpConnectors.TestClient
 
             clientConnector.Send(1, 1, "hello !");
 
+            clientConnector.OnPacket += ClientConnector_OnPacket;
+
+
+            while (true)
+            {
+                var line = Console.ReadLine();
+                clientConnector.Send(1, 1, line);
+
+                if (line == "Q")
+                {
+                    break;
+                }
+
+            }
+
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
+        }
+
+        private static void ClientConnector_OnPacket(int arg1, int arg2, object arg3)
+        {
+            Console.WriteLine($"ClientConnector_OnPacket!!!! { arg3}");
         }
 
         static Dictionary<Tuple<int, int>, Type> GetTypeMap()

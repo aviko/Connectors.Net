@@ -5,18 +5,30 @@ namespace TcpConnectors.TestServer
 {
     class Program
     {
+        private static ServerConnectors _serverConnectors;
+
         static void Main(string[] args)
         {
             Console.WriteLine("TcpConnectors.TestServer");
 
-            var serverConnectors = new ServerConnectors(GetTypeMap());
-            serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
+            _serverConnectors = new ServerConnectors(GetTypeMap());
+            _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
+            _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
 
 
-            serverConnectors.Listen(1111);
+            _serverConnectors.Listen(1111);
 
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
+
+        }
+
+        private static void ServerConnectors_OnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
+        {
+            Console.WriteLine($"ServerConnectors_OnPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
+
+            _serverConnectors.Send(x => true, module, command, packet);
+
 
         }
 

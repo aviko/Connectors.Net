@@ -9,34 +9,46 @@ namespace TcpConnectors
     {
         private ServerConnectors _serverConnectors;
 
-        internal ServerConnectorContext(ServerConnectors serverConnectors)
+        internal ServerConnectorContext(int id, ServerConnectors serverConnectors)
         {
+            Id = id;
             _serverConnectors = serverConnectors;
         }
 
 
+        public int Id { get; private set; }
         public Socket Socket { get; internal set; }
         public object Data { get; set; }
         public Dictionary<string, object> Map { get; set; } = new Dictionary<string, object>();
 
         internal void OnRecv(byte[] buf)
         {
-            Console.WriteLine("ServerConnectorContext.OnRecv()");
 
-            var destBuf = new byte[buf.Length - 2];
-            Array.Copy(buf, 2, destBuf, 0, buf.Length - 2);
-
-            _serverConnectors._typeMap.TryGetValue(new Tuple<int, int>(buf[0], buf[1]), out var type);
-
-            var packet = BinaryConverter.BinaryConvert.DeserializeObject(type , destBuf);
-
-            Console.WriteLine($"module:{buf[0]}  command:{buf[1]} packet:{packet} ");
+            var packet = ConnectorsUtils.DeserializePacket(buf, _serverConnectors._typeMap);
+            _serverConnectors.TriggerOnPacket(this, buf[0], buf[1], packet);
 
         }
 
-        internal void OnExcp(Exception e)
+        internal void OnSend()
         {
-            Console.WriteLine("ServerConnectorContext.OnExcp()");
+            Console.WriteLine("ServerConnectorContext.OnSend()");
+        }
+
+        internal void OnExcp(Exception ex)
+        {
+            if (Socket.Connected)
+            {
+                _serverConnectors.TriggerOnException(this, ex);
+            }
+            else
+            {
+                //not connected
+                if (_serverConnectors._contextMap.TryRemove(this.Id, out var removed))
+                {
+                    _serverConnectors.TriggerOnDisconnect(this);
+                }
+            }
+
         }
     }
 }

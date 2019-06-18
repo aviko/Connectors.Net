@@ -14,12 +14,14 @@ namespace TcpConnectors
 
         private void OnRecv(byte[] buf)
         {
-            Console.WriteLine("ClientConnector.OnRecv");
+            object packet = ConnectorsUtils.DeserializePacket(buf, _typeMap);
+
+            OnPacket?.Invoke(buf[0], buf[1], packet);
         }
 
         private void OnExcp(Exception e)
         {
-            Console.WriteLine("ClientConnector.OnExcp");
+            OnDisconnect?.Invoke();
         }
 
         private void OnSend()

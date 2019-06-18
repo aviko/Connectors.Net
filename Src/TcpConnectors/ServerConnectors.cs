@@ -24,7 +24,15 @@ namespace TcpConnectors
 
         public void Send(Func<ServerConnectorContext, bool> filter, int module, int command, object packet)
         {
+            byte[] output = ConnectorsUtils.SerializePacket(module, command, packet);
 
+            foreach (var connector in _contextMap.Values)
+            {
+                if (filter(connector))
+                {
+                    TcpSocketsUtils.Send(connector.Socket, output, connector.OnSend, connector.OnExcp);
+                }
+            }
         }
 
         public void Send(ServerConnectorContext context, int module, int command, object packet)
@@ -38,8 +46,8 @@ namespace TcpConnectors
 
         public event Action<ServerConnectorContext, int, int, object> OnRequestPacket;
 
-        public event Action<ServerConnectorContext, int> OnDisconnect;
+        public event Action<ServerConnectorContext> OnDisconnect;
 
-        public event Action<ServerConnectorContext, Exception> OnError;
+        public event Action<ServerConnectorContext, Exception> OnException;
     }
 }

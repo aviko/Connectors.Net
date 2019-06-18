@@ -14,7 +14,7 @@ namespace TcpConnectors
         private bool _isDisposed = false;
         private Socket _listenerSock;
         private int _nextContextId = 1;
-        private ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
+        internal ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
         internal Dictionary<Tuple<int, int>, Type> _typeMap;
 
         private void StartListeningBlocking()
@@ -39,9 +39,10 @@ namespace TcpConnectors
                 {
                     // Start an asynchronous socket to listen for connections.
                     Socket newSocket = _listenerSock.Accept();
-                    var newContext = new ServerConnectorContext(this);
+                    int id = _nextContextId++;
+                    var newContext = new ServerConnectorContext(id, this);
                     newContext.Socket = newSocket;
-                    _contextMap[_nextContextId++] = newContext;
+                    _contextMap[id] = newContext;
                     OnNewConnector?.Invoke(newContext);
                     TcpSocketsUtils.Recv(newSocket, newContext.OnRecv, newContext.OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
                 }
@@ -53,6 +54,21 @@ namespace TcpConnectors
                     }
                 }
             }
+        }
+
+        internal void TriggerOnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
+        {
+            OnPacket?.Invoke(serverConnectorContext, module, command, packet);
+        }
+
+        internal void TriggerOnDisconnect(ServerConnectorContext serverConnectorContext)
+        {
+            OnDisconnect?.Invoke(serverConnectorContext);
+        }
+
+        internal void TriggerOnException(ServerConnectorContext serverConnectorContext, Exception ex)
+        {
+            OnException?.Invoke(serverConnectorContext, ex );
         }
 
     }
