@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TcpConnectors
 {
@@ -28,9 +29,12 @@ namespace TcpConnectors
         }
 
 
-        public async void SendRequest(int command, object packet)
+        public object SendRequest(int module, int command, object packet)
         {
-
+            var requestId = _nextRequestId++;
+            byte[] output = ConnectorsUtils.SerializeRequestPacket(module, command, packet, requestId);
+            var res = _reqResHandler.Request(requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); });
+            return res;
         }
 
         public event Action<int, int, object> OnPacket;

@@ -14,6 +14,7 @@ namespace TcpConnectors.TestServer
             _serverConnectors = new ServerConnectors(GetTypeMap());
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
             _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
+            _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket;
 
 
             _serverConnectors.Listen(1111);
@@ -21,6 +22,12 @@ namespace TcpConnectors.TestServer
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
 
+        }
+
+        private static object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
+        {
+            Console.WriteLine($"ServerConnectors_OnRequestPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
+            return "Res:)";
         }
 
         private static void ServerConnectors_OnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
@@ -41,7 +48,8 @@ namespace TcpConnectors.TestServer
         {
             return new Dictionary<Tuple<int, int>, Type>()
             {
-               { new Tuple<int,int>(1,1) , typeof(string) }
+               { new Tuple<int,int>(1,1) , typeof(string) },
+               { new Tuple<int,int>(2,1) , typeof(string) }
             };
         }
     }

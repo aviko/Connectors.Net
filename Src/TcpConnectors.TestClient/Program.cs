@@ -21,11 +21,19 @@ namespace TcpConnectors.TestClient
             while (true)
             {
                 var line = Console.ReadLine();
-                clientConnector.Send(1, 1, line);
-
                 if (line == "Q")
                 {
                     break;
+                }
+                else if (line == "R")
+                {
+                    var res = clientConnector.SendRequest(1, 1, "ReqRes");
+                    Console.WriteLine($"Response: { res}");
+
+                }
+                else
+                {
+                    clientConnector.Send(1, 1, line);
                 }
 
             }
@@ -43,7 +51,9 @@ namespace TcpConnectors.TestClient
         {
             return new Dictionary<Tuple<int, int>, Type>()
             {
-                { new Tuple<int,int>(1,1) , typeof(string) }
+                { new Tuple<int,int>(1,1) , typeof(string) },
+                { new Tuple<int,int>(2,1) , typeof(string) }
+
             };
         }
 

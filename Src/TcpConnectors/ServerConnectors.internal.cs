@@ -46,11 +46,11 @@ namespace TcpConnectors
                     OnNewConnector?.Invoke(newContext);
                     TcpSocketsUtils.Recv(newSocket, newContext.OnRecv, newContext.OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
                     if (!_isDisposed)
                     {
-
+                        OnException(null, ex);
                     }
                 }
             }
@@ -59,6 +59,11 @@ namespace TcpConnectors
         internal void TriggerOnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
             OnPacket?.Invoke(serverConnectorContext, module, command, packet);
+        }
+
+        internal object TriggerOnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
+        {
+            return OnRequestPacket?.Invoke(serverConnectorContext, module, command, packet);
         }
 
         internal void TriggerOnDisconnect(ServerConnectorContext serverConnectorContext)

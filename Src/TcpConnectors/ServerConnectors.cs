@@ -35,16 +35,20 @@ namespace TcpConnectors
             }
         }
 
-        public void Send(ServerConnectorContext context, int module, int command, object packet)
+        public void Send(int contextId, int module, int command, object packet)
         {
-
+            if (_contextMap.TryGetValue(contextId, out var serverConnectorContext))
+            {
+                byte[] output = ConnectorsUtils.SerializePacket(module, command, packet);
+                TcpSocketsUtils.Send(serverConnectorContext.Socket, output, serverConnectorContext.OnSend, serverConnectorContext.OnExcp);
+            }
         }
 
         public event Action<ServerConnectorContext> OnNewConnector;
 
         public event Action<ServerConnectorContext, int, int, object> OnPacket;
 
-        public event Action<ServerConnectorContext, int, int, object> OnRequestPacket;
+        public event Func<ServerConnectorContext, int, int, object, object> OnRequestPacket;
 
         public event Action<ServerConnectorContext> OnDisconnect;
 
