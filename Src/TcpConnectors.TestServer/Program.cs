@@ -15,6 +15,7 @@ namespace TcpConnectors.TestServer
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
             _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
             _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket;
+            _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect; ;
 
 
             _serverConnectors.Listen(1111);
@@ -22,6 +23,11 @@ namespace TcpConnectors.TestServer
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
 
+        }
+
+        private static void ServerConnectors_OnDisconnect(ServerConnectorContext serverConnectorContext)
+        {
+            Console.WriteLine($"ServerConnectors_OnDisconnect RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()}");
         }
 
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)

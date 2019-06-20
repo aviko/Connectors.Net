@@ -29,7 +29,11 @@ namespace TcpConnectors.TestClient
                 {
                     var res = clientConnector.SendRequest(1, 1, "ReqRes");
                     Console.WriteLine($"Response: { res}");
-
+                }
+                else if (line == "r")
+                {
+                    var res = clientConnector.SendRequestAsync(1, 1, "reqRes").Result;
+                    Console.WriteLine($"Response: { res}");
                 }
                 else
                 {

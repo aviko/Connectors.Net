@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace TcpConnectors
 {
@@ -17,7 +15,6 @@ namespace TcpConnectors
 
 
         private ServerConnectors _serverConnectors;
-        private BlockingCollection<RequestResponseData> _requestResponseQueue = new BlockingCollection<RequestResponseData>();
 
         internal ServerConnectorContext(int id, ServerConnectors serverConnectors)
         {
@@ -38,9 +35,9 @@ namespace TcpConnectors
                     Packet = reqPacket,
                 };
 
-                var res = _serverConnectors.TriggerOnRequestPacket(this, buf[5], buf[6], reqPacket);
-                var resBuf = ConnectorsUtils.SerializeRequestPacket(buf[5], buf[6], res, requestId);
-                TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+                new Task(() => HandleRequestResponse(rrData)).Start();
+
+
             }
             else //packet
             {
@@ -48,6 +45,13 @@ namespace TcpConnectors
                 _serverConnectors.TriggerOnPacket(this, buf[0], buf[1], packet);
             }
 
+        }
+
+        private void HandleRequestResponse(RequestResponseData rrData)
+        {
+            var res = _serverConnectors.TriggerOnRequestPacket(this, rrData.Module, rrData.Command, rrData.Packet);
+            var resBuf = ConnectorsUtils.SerializeRequestPacket(rrData.Module, rrData.Command, res, rrData.RequestId);
+            TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
         }
 
         internal void OnSend()

@@ -31,9 +31,17 @@ namespace TcpConnectors
 
         public object SendRequest(int module, int command, object packet)
         {
-            var requestId = _nextRequestId++;
+            var requestId = _nextRequestId += 2;
             byte[] output = ConnectorsUtils.SerializeRequestPacket(module, command, packet, requestId);
             var res = _reqResHandler.Request(requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); });
+            return res;
+        }
+
+        public async Task<object> SendRequestAsync(int module, int command, object packet)
+        {
+            var requestId = _nextRequestIdAsync += 2;
+            byte[] output = ConnectorsUtils.SerializeRequestPacket(module, command, packet, requestId);
+            var res = await _reqResAsyncHandler.Request(requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); });
             return res;
         }
 

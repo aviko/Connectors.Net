@@ -9,9 +9,11 @@ namespace TcpConnectors
     {
         private Socket _socket;
         private Dictionary<Tuple<int, int>, Type> _typeMap;
-        private int _nextRequestId = 1;
+        private int _nextRequestId = 1; //odd numbers
+        private int _nextRequestIdAsync = 2; //even numbers
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
+        private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
 
 
         private void OnRecv(byte[] buf)
@@ -19,7 +21,14 @@ namespace TcpConnectors
             if (buf[0] == 0) //request response packet
             {
                 var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _typeMap, out var requestId);
-                _reqResHandler.HandleResponse(requestId, reqPacket);
+                if (requestId % 2 == 1)
+                {
+                    _reqResHandler.HandleResponse(requestId, reqPacket);
+                }
+                else
+                {
+                    _reqResAsyncHandler.HandleResponse(requestId, reqPacket);
+                }
             }
             else //packet
             {
