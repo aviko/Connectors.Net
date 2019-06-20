@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.1.0</Version>
+    <Authors>Avi Kenigsberg</Authors>
+    <Company>Avi Kenigsberg</Company>
+    <PackageId>TcpConnectors.Net</PackageId>
+    <Product>TcpConnectors.Net</Product>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>tcp client server infrastucture</PackageTags>
+    <PackageLicenseUrl>https://github.com/aviko/TcpConnectors.Net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/aviko/TcpConnectors.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/aviko/TcpConnectors.Net</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
