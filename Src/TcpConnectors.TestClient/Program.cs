@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TcpConnectors.TestCommon;
 
 namespace TcpConnectors.TestClient
 {
@@ -14,6 +15,7 @@ namespace TcpConnectors.TestClient
             clientConnector.Connect("127.0.0.1", 1111);
 
             clientConnector.Send(1, 1, "hello !");
+            clientConnector.Send(3, 1, new LoginPayload() { Username="u", EncPassword="p" });
 
             clientConnector.OnPacket += ClientConnector_OnPacket;
 
@@ -56,7 +58,9 @@ namespace TcpConnectors.TestClient
             return new Dictionary<Tuple<int, int>, Type>()
             {
                 { new Tuple<int,int>(1,1) , typeof(string) },
-                { new Tuple<int,int>(2,1) , typeof(string) }
+                { new Tuple<int,int>(2,1) , typeof(string) },
+                { new Tuple<int,int>(3,1) , typeof(LoginPayload) }
+
 
             };
         }

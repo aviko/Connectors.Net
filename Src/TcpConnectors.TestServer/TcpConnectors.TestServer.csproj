@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TcpConnectors.TestCommon\TcpConnectors.TestCommon.csproj" />
     <ProjectReference Include="..\TcpConnectors\TcpConnectors.csproj" />
   </ItemGroup>
 

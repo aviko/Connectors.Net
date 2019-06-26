@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TcpConnectors.TestCommon;
 
 namespace TcpConnectors.TestServer
 {
@@ -55,7 +56,8 @@ namespace TcpConnectors.TestServer
             return new Dictionary<Tuple<int, int>, Type>()
             {
                { new Tuple<int,int>(1,1) , typeof(string) },
-               { new Tuple<int,int>(2,1) , typeof(string) }
+               { new Tuple<int,int>(2,1) , typeof(string) },
+               { new Tuple<int,int>(3,1) , typeof(LoginPayload) }
             };
         }
     }
