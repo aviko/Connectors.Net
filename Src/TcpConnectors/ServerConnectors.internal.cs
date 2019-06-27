@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Timers;
 
 namespace TcpConnectors
 {
@@ -16,6 +17,9 @@ namespace TcpConnectors
         private int _nextContextId = 1;
         internal ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
         internal Dictionary<Tuple<int, int>, Type> _typeMap;
+
+        private long _keepAliveTimestamp = 0;
+        private System.Timers.Timer _keepAliveTimer = null;
 
         private void StartListeningBlocking()
         {
@@ -31,6 +35,13 @@ namespace TcpConnectors
 
             _listenerSock.Bind(ep);
             _listenerSock.Listen(10);
+
+            if (_keepAliveTimer == null)
+            {
+                _keepAliveTimer = new System.Timers.Timer(10_000);
+                _keepAliveTimer.Elapsed += KeepAliveTimer_Elapsed; ;
+                _keepAliveTimer.Start();
+            }
 
             while (!_isDisposed)
             {
@@ -50,9 +61,35 @@ namespace TcpConnectors
                 {
                     if (!_isDisposed)
                     {
-                        OnException(null, ex);
+                        OnException?.Invoke(null, ex);
                     }
                 }
+            }
+        }
+
+        private void KeepAliveTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            _keepAliveTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            foreach (var connector in _contextMap.Values)
+            {
+                bool needToDisconnect = true;
+                //check new context
+                if ((DateTime.UtcNow - connector._connectedTime).TotalSeconds < 18) needToDisconnect = false;
+
+                //_lastRecievedLeepAliveTimestamp less than 30 seconds
+                if ((_keepAliveTimestamp - connector._lastRecievedLeepAliveTimestamp) < 30) needToDisconnect = false;
+
+                if (needToDisconnect)
+                {
+                    Console.WriteLine("needToDisconnect");
+                    try { connector.Socket.Close(); } catch { }
+                    connector.OnExcp(null);
+                    continue;
+                }
+
+                //send new keep alive
+                var keepaliveBuf = ConnectorsUtils.SerializeRequestPacket(0, 0, _keepAliveTimestamp, 0);
+                TcpSocketsUtils.Send(connector.Socket, keepaliveBuf, connector.OnSend, connector.OnExcp);
             }
         }
 
@@ -73,7 +110,7 @@ namespace TcpConnectors
 
         internal void TriggerOnException(ServerConnectorContext serverConnectorContext, Exception ex)
         {
-            OnException?.Invoke(serverConnectorContext, ex );
+            OnException?.Invoke(serverConnectorContext, ex);
         }
 
     }

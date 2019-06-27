@@ -5,20 +5,37 @@ using System.Threading.Tasks;
 
 namespace TcpConnectors
 {
+    public class ClientConnectorSettings
+    {
+        public Dictionary<Tuple<int, int>, Type> TypesMap { get; set; } = new Dictionary<Tuple<int, int>, Type>();
+        public bool AutoReconnect { get; set; } = true;
+        public int KeepAliveInterval { get; set; } = 30;
+    }
+
+
     public partial class ClientConnector
     {
-        public ClientConnector(Dictionary<Tuple<int, int>, Type> typeMap)
+        public bool IsConnected { get; private set; } = false;
+
+        public ClientConnector(Dictionary<Tuple<int, int>, Type> typeMap) : this(new ClientConnectorSettings
         {
-            _typeMap = typeMap;
+            TypesMap = typeMap,
+        })
+        {
         }
 
+        public ClientConnector(ClientConnectorSettings settings)
+        {
+            _settings = settings;
+            _settings.TypesMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
+
+        }
 
         public void Connect(string host, int port)
         {
-            _socket = TcpSocketsUtils.Connect(host, port);
-            TcpSocketsUtils.Recv(_socket, OnRecv, OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
-
-
+            _host = host;
+            _port = port;
+            ConnectInternal();
         }
 
         public void Send(int module, int command, object packet)
@@ -46,6 +63,8 @@ namespace TcpConnectors
         }
 
         public event Action<int, int, object> OnPacket;
+
+        public event Action OnConnect;
 
         public event Action OnDisconnect;
 

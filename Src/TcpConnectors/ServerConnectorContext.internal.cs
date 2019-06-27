@@ -15,11 +15,14 @@ namespace TcpConnectors
 
 
         private ServerConnectors _serverConnectors;
+        internal long _lastRecievedLeepAliveTimestamp;
+        internal DateTime _connectedTime = default(DateTime);
 
         internal ServerConnectorContext(int id, ServerConnectors serverConnectors)
         {
             Id = id;
             _serverConnectors = serverConnectors;
+            _connectedTime = DateTime.UtcNow;
         }
 
         internal void OnRecv(byte[] buf)
@@ -27,17 +30,23 @@ namespace TcpConnectors
             if (buf[0] == 0) //request response packet
             {
                 var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._typeMap, out var requestId);
+
+                if (buf[1] == 0 && requestId == 0) //keep alive
+                {
+                    _lastRecievedLeepAliveTimestamp = (long)reqPacket;
+                    Console.WriteLine($"keep alive: {reqPacket}");
+                    return;
+                }
+
                 var rrData = new RequestResponseData()
                 {
                     RequestId = requestId,
                     Module = buf[5],
-                    Command =  buf[6],
+                    Command = buf[6],
                     Packet = reqPacket,
                 };
 
                 new Task(() => HandleRequestResponse(rrData)).Start();
-
-
             }
             else //packet
             {

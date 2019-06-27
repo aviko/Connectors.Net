@@ -28,7 +28,10 @@ namespace TcpConnectors.TestServer
 
         private static void ServerConnectors_OnDisconnect(ServerConnectorContext serverConnectorContext)
         {
-            Console.WriteLine($"ServerConnectors_OnDisconnect RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()}");
+            var remoteEndPoint = "NA";
+            try { remoteEndPoint = serverConnectorContext.Socket.RemoteEndPoint.ToString(); } catch { }
+
+            Console.WriteLine($"ServerConnectors_OnDisconnect RemoteEndPoint:{remoteEndPoint}");
         }
 
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)

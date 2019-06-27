@@ -7,10 +7,15 @@ namespace TcpConnectors
 {
     partial class ClientConnector
     {
-        private Socket _socket;
-        private Dictionary<Tuple<int, int>, Type> _typeMap;
+        private Socket _socket = null;
+        private ClientConnectorSettings _settings;
         private int _nextRequestId = 1; //odd numbers
         private int _nextRequestIdAsync = 2; //even numbers
+
+        private string _host;
+        private int _port;
+
+        private System.Timers.Timer _keepAliveTimer = null;
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
         private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
@@ -20,7 +25,14 @@ namespace TcpConnectors
         {
             if (buf[0] == 0) //request response packet
             {
-                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _typeMap, out var requestId);
+                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.TypesMap, out var requestId);
+                if (buf[1] == 0 && requestId == 0) //keep alive
+                {
+                    TcpSocketsUtils.Send(_socket, buf, OnSend, OnExcp);
+                    Console.WriteLine($"keep alive: {reqPacket}");
+                    return;
+                }
+
                 if (requestId % 2 == 1)
                 {
                     _reqResHandler.HandleResponse(requestId, reqPacket);
@@ -32,7 +44,7 @@ namespace TcpConnectors
             }
             else //packet
             {
-                object packet = ConnectorsUtils.DeserializePacket(buf, _typeMap);
+                object packet = ConnectorsUtils.DeserializePacket(buf, _settings.TypesMap);
                 OnPacket?.Invoke(buf[0], buf[1], packet);
             }
 
@@ -40,12 +52,72 @@ namespace TcpConnectors
 
         private void OnExcp(Exception e)
         {
-            OnDisconnect?.Invoke();
+            if (_socket != null && _socket.Connected == false)
+            {
+                DisconnectInternal();
+            }
+        }
+
+        private void DisconnectInternal()
+        {
+            if (IsConnected)
+            {
+                IsConnected = false;
+                OnDisconnect?.Invoke();
+            }
         }
 
         private void OnSend()
         {
             Console.WriteLine("ClientConnector.OnSend");
+        }
+
+        private bool _isInConnectInternal = false;
+        private void ConnectInternal()
+        {
+            try
+            {
+                //start keepAlive timer only on first connect
+                if (_keepAliveTimer == null)
+                {
+                    _keepAliveTimer = new System.Timers.Timer(10_000);
+                    _keepAliveTimer.Elapsed += KeepAliveTimer_Elapsed; ;
+                    _keepAliveTimer.Start();
+                }
+
+                if (_isInConnectInternal) return;
+                _isInConnectInternal = true;
+
+                if (_socket != null)
+                {
+                    try { _socket.Dispose(); } catch { }
+                }
+
+                _socket = TcpSocketsUtils.Connect(_host, _port);
+                IsConnected = true;
+                OnConnect?.Invoke();
+                TcpSocketsUtils.Recv(_socket, OnRecv, OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                _isInConnectInternal = false;
+            }
+
+        }
+
+        private void KeepAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (_socket == null || _socket.Connected == false) //todo: chekc also keep alive status
+            {
+                DisconnectInternal();
+                ConnectInternal();
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ namespace TcpConnectors
         public ServerConnectors(Dictionary<Tuple<int, int>, Type> typeMap)
         {
             _typeMap = typeMap;
+            _typeMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
         }
 
         public void Configure(Dictionary<Tuple<int, int>, Type> typeMap)

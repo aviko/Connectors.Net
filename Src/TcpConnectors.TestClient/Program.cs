@@ -18,6 +18,8 @@ namespace TcpConnectors.TestClient
             clientConnector.Send(3, 1, new LoginPayload() { Username="u", EncPassword="p" });
 
             clientConnector.OnPacket += ClientConnector_OnPacket;
+            clientConnector.OnConnect += ClientConnector_OnConnect;
+            clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
 
 
             while (true)
@@ -46,6 +48,16 @@ namespace TcpConnectors.TestClient
 
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
+        }
+
+        private static void ClientConnector_OnDisconnect()
+        {
+            Console.WriteLine($"ClientConnector_OnDisconnect");
+        }
+
+        private static void ClientConnector_OnConnect()
+        {
+            Console.WriteLine($"ClientConnector_OnConnect");
         }
 
         private static void ClientConnector_OnPacket(int arg1, int arg2, object arg3)
