@@ -10,10 +10,11 @@
 TcpConnectors is a library that ease the development of Tcp base client server:
  - Hides low level Socket hassels
  - Divide the stream into logic packets
- - Provides transparent binary serialization for .Net primitives and classes
+ - Provides transparent binary serialization for .Net primitives and classes (extremly efficient packets size)
  - Handle reconnects
- - build in keep alive
- - provides events for
+ - Build in keep alive
+ - Handle multiple clients in the server side
+ - Provides events such as
    - Connect
    - Disconnect
    - Income Packet
