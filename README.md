@@ -14,9 +14,9 @@ TcpConnectors is a library that ease the development of Tcp base client server:
  - Handle reconnects
  - build in keep alive
  - provides events for
-  - Connect
-  - Disconnect
-  - Income Packet
+   - Connect
+   - Disconnect
+   - Income Packet
   
 
 
