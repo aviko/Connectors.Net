@@ -27,7 +27,8 @@ namespace TcpConnectors.TestCommon
         public const byte MODULE =  2;
         public const byte COMMAND =  1;
 
-        public string GroupName { get; set; }
+        public bool IsCreated { get; set; }
+        public string Message { get; set; }
     }
 
     public class JoinGroupResponsePacket : IServer2ClientPacket

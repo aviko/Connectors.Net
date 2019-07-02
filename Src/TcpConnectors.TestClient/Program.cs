@@ -38,10 +38,10 @@ namespace TcpConnectors.TestClient
                 {
                     break;
                 }
-                else if (line == "R")
+                else if (line == "CG")
                 {
-                    var res = clientConnector.SendRequest(1, 1, "ReqRes");
-                    Console.WriteLine($"Response: { res}");
+                    var res = clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket {GroupName = "MyGroup" });
+                    Console.WriteLine($"Response: { JsonConvert.SerializeObject(res)}");
                 }
                 else if (line == "r")
                 {
@@ -83,17 +83,6 @@ namespace TcpConnectors.TestClient
             Console.WriteLine($"ClientConnector_OnPacket!!!! module:{module} command:{command} packet:{JsonConvert.SerializeObject(packet)}");
         }
 
-        //static Dictionary<Tuple<int, int>, Type> GetTypeMap()
-        //{
-        //    return new Dictionary<Tuple<int, int>, Type>()
-        //    {
-        //        { new Tuple<int,int>(1,1) , typeof(string) },
-        //        { new Tuple<int,int>(2,1) , typeof(string) },
-        //        { new Tuple<int,int>(3,1) , typeof(LoginRequestPacket) }
-
-
-        //    };
-        //}
 
     }
 }
