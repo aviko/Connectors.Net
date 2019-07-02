@@ -12,11 +12,12 @@ namespace TcpConnectors.TestServer
         {
             Console.WriteLine("TcpConnectors.TestServer");
 
-            _serverConnectors = new ServerConnectors(GetTypeMap());
+            _serverConnectors = new ServerConnectors(PacketsUtils.GetClient2ServerMapping());
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
             _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
             _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket;
-            _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect; ;
+            _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect;
+            _serverConnectors.OnException += ServerConnectors_OnException;
 
 
             _serverConnectors.Listen(1111);
@@ -24,6 +25,14 @@ namespace TcpConnectors.TestServer
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
 
+        }
+
+        private static void ServerConnectors_OnException(ServerConnectorContext connectorContext, Exception exp)
+        {
+            var remoteEndPoint = "NA";
+            try { remoteEndPoint = connectorContext.Socket.RemoteEndPoint.ToString(); } catch { }
+
+            Console.WriteLine($"ServerConnectors_OnException RemoteEndPoint:{remoteEndPoint} ex:{exp.ToString()}");
         }
 
         private static void ServerConnectors_OnDisconnect(ServerConnectorContext serverConnectorContext)
@@ -37,14 +46,26 @@ namespace TcpConnectors.TestServer
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
             Console.WriteLine($"ServerConnectors_OnRequestPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
-            return "Res:)";
+            if (module == LoginResponsePacket.MODULE && command == LoginResponsePacket.COMMAND)
+            {
+                return new LoginResponsePacket() { Username = "!" };
+            }
+            return null;
         }
 
         private static void ServerConnectors_OnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
             Console.WriteLine($"ServerConnectors_OnPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
 
-            _serverConnectors.Send(x => true, module, command, packet);
+            if (module == OnMessagePacket.MODULE && command == OnMessagePacket.COMMAND)
+            {
+                var msgPacket = new OnMessagePacket()
+                {
+                    Message = ((SendGroupMessagePacket)packet).Message,
+                };
+
+                _serverConnectors.Send(x => true, module, command, msgPacket);
+            }
 
 
         }
@@ -54,14 +75,14 @@ namespace TcpConnectors.TestServer
             Console.WriteLine($"ServerConnectors_OnNewConnector RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()}");
         }
 
-        static Dictionary<Tuple<int, int>, Type> GetTypeMap()
-        {
-            return new Dictionary<Tuple<int, int>, Type>()
-            {
-               { new Tuple<int,int>(1,1) , typeof(string) },
-               { new Tuple<int,int>(2,1) , typeof(string) },
-               { new Tuple<int,int>(3,1) , typeof(LoginPayload) }
-            };
-        }
+        //static Dictionary<Tuple<int, int>, Type> GetTypeMap()
+        //{
+        //    return new Dictionary<Tuple<int, int>, Type>()
+        //    {
+        //       { new Tuple<int,int>(1,1) , typeof(string) },
+        //       { new Tuple<int,int>(2,1) , typeof(string) },
+        //       { new Tuple<int,int>(3,1) , typeof(LoginRequestPacket) }
+        //    };
+        //}
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using TcpConnectors.TestCommon;
 
@@ -10,16 +11,24 @@ namespace TcpConnectors.TestClient
         {
             Console.WriteLine("TcpConnectors.TestClient");
 
-            var clientConnector = new ClientConnector(GetTypeMap());
 
-            clientConnector.Connect("127.0.0.1", 1111);
+            var clientConnector = new ClientConnector(new ClientConnectorSettings()
+            {
+                TypesMap = PacketsUtils.GetServer2ClientMapping(),
+                ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1111) }
+            });
 
-            clientConnector.Send(1, 1, "hello !");
-            clientConnector.Send(3, 1, new LoginPayload() { Username="u", EncPassword="p" });
-
+            clientConnector.Connect();
             clientConnector.OnPacket += ClientConnector_OnPacket;
             clientConnector.OnConnect += ClientConnector_OnConnect;
             clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
+            clientConnector.OnException += ClientConnector_OnException;
+
+            var loginRes = clientConnector.SendRequest(1, 1, new LoginRequestPacket() { Username = "u" });
+
+            Console.WriteLine($"loginRes: {JsonConvert.SerializeObject(loginRes)}");
+
+
 
 
             while (true)
@@ -41,13 +50,22 @@ namespace TcpConnectors.TestClient
                 }
                 else
                 {
-                    clientConnector.Send(1, 1, line);
+                    var msgPacket = new SendGroupMessagePacket()
+                    {
+                        Message = line
+                    };
+                    clientConnector.Send(3, 1, msgPacket);
                 }
 
             }
 
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
+        }
+
+        private static void ClientConnector_OnException(Exception exp)
+        {
+            Console.WriteLine($"ClientConnector_OnException {exp}");
         }
 
         private static void ClientConnector_OnDisconnect()
@@ -60,22 +78,22 @@ namespace TcpConnectors.TestClient
             Console.WriteLine($"ClientConnector_OnConnect");
         }
 
-        private static void ClientConnector_OnPacket(int arg1, int arg2, object arg3)
+        private static void ClientConnector_OnPacket(int module, int command, object packet)
         {
-            Console.WriteLine($"ClientConnector_OnPacket!!!! { arg3}");
+            Console.WriteLine($"ClientConnector_OnPacket!!!! module:{module} command:{command} packet:{JsonConvert.SerializeObject(packet)}");
         }
 
-        static Dictionary<Tuple<int, int>, Type> GetTypeMap()
-        {
-            return new Dictionary<Tuple<int, int>, Type>()
-            {
-                { new Tuple<int,int>(1,1) , typeof(string) },
-                { new Tuple<int,int>(2,1) , typeof(string) },
-                { new Tuple<int,int>(3,1) , typeof(LoginPayload) }
+        //static Dictionary<Tuple<int, int>, Type> GetTypeMap()
+        //{
+        //    return new Dictionary<Tuple<int, int>, Type>()
+        //    {
+        //        { new Tuple<int,int>(1,1) , typeof(string) },
+        //        { new Tuple<int,int>(2,1) , typeof(string) },
+        //        { new Tuple<int,int>(3,1) , typeof(LoginRequestPacket) }
 
 
-            };
-        }
+        //    };
+        //}
 
     }
 }

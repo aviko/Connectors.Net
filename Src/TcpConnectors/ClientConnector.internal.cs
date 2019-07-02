@@ -12,9 +12,6 @@ namespace TcpConnectors
         private int _nextRequestId = 1; //odd numbers
         private int _nextRequestIdAsync = 2; //even numbers
 
-        private string _host;
-        private int _port;
-
         private System.Timers.Timer _keepAliveTimer = null;
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
@@ -91,14 +88,27 @@ namespace TcpConnectors
                 if (_socket != null)
                 {
                     try { _socket.Dispose(); } catch { }
+                    _socket = null;
                 }
 
-                _socket = TcpSocketsUtils.Connect(_host, _port);
-                IsConnected = true;
-                OnConnect?.Invoke();
-                TcpSocketsUtils.Recv(_socket, OnRecv, OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
-
-
+                foreach (var serverAddress in _settings.ServerAddressList)
+                {
+                    try
+                    {
+                        _socket = TcpSocketsUtils.Connect(serverAddress.Item1, serverAddress.Item2);
+                        break;
+                    }
+                    catch
+                    {
+                        //todo: log
+                    }
+                }
+                if (_socket != null)
+                {
+                    IsConnected = true;
+                    OnConnect?.Invoke();
+                    TcpSocketsUtils.Recv(_socket, OnRecv, OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
+                }
             }
             catch (Exception ex)
             {
@@ -116,7 +126,10 @@ namespace TcpConnectors
             if (_socket == null || _socket.Connected == false) //todo: chekc also keep alive status
             {
                 DisconnectInternal();
-                ConnectInternal();
+                if (_settings.AutoReconnect)
+                {
+                    ConnectInternal();
+                }
             }
         }
     }

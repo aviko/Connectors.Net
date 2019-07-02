@@ -45,7 +45,6 @@ namespace TcpConnectors
 
             while (!_isDisposed)
             {
-
                 try
                 {
                     // Start an asynchronous socket to listen for connections.
@@ -74,7 +73,7 @@ namespace TcpConnectors
             {
                 bool needToDisconnect = true;
                 //check new context
-                if ((DateTime.UtcNow - connector._connectedTime).TotalSeconds < 18) needToDisconnect = false;
+                if ((DateTime.UtcNow - connector._connectedTime).TotalSeconds < 180) needToDisconnect = false;
 
                 //_lastRecievedLeepAliveTimestamp less than 30 seconds
                 if ((_keepAliveTimestamp - connector._lastRecievedLeepAliveTimestamp) < 30) needToDisconnect = false;

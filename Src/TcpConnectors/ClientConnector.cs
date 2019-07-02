@@ -10,19 +10,13 @@ namespace TcpConnectors
         public Dictionary<Tuple<int, int>, Type> TypesMap { get; set; } = new Dictionary<Tuple<int, int>, Type>();
         public bool AutoReconnect { get; set; } = true;
         public int KeepAliveInterval { get; set; } = 30;
+        public List<Tuple<string, int>> ServerAddressList { get; set; } = new List<Tuple<string, int>>();
     }
 
 
     public partial class ClientConnector
     {
         public bool IsConnected { get; private set; } = false;
-
-        public ClientConnector(Dictionary<Tuple<int, int>, Type> typeMap) : this(new ClientConnectorSettings
-        {
-            TypesMap = typeMap,
-        })
-        {
-        }
 
         public ClientConnector(ClientConnectorSettings settings)
         {
@@ -31,10 +25,8 @@ namespace TcpConnectors
 
         }
 
-        public void Connect(string host, int port)
+        public void Connect()
         {
-            _host = host;
-            _port = port;
             ConnectInternal();
         }
 
