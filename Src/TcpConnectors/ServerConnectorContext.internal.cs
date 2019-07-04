@@ -29,7 +29,7 @@ namespace TcpConnectors
         {
             if (buf[0] == 0) //request response packet
             {
-                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._typeMap, out var requestId);
+                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._packetsMap, out var requestId);
 
                 if (buf[1] == 0 && requestId == 0) //keep alive
                 {
@@ -50,7 +50,7 @@ namespace TcpConnectors
             }
             else //packet
             {
-                var packet = ConnectorsUtils.DeserializePacket(buf, _serverConnectors._typeMap);
+                var packet = ConnectorsUtils.DeserializePacket(buf, _serverConnectors._packetsMap);
                 _serverConnectors.TriggerOnPacket(this, buf[0], buf[1], packet);
             }
 
@@ -65,7 +65,7 @@ namespace TcpConnectors
 
         internal void OnSend()
         {
-            Console.WriteLine("ServerConnectorContext.OnSend()");
+            //Console.WriteLine("ServerConnectorContext.OnSend()");
         }
 
         internal void OnExcp(Exception ex)

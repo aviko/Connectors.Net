@@ -24,8 +24,8 @@ namespace TcpConnectors.TestCommon
     //Groups
     public class CreateGroupResponsePacket : IServer2ClientPacket
     {
-        public const byte MODULE =  2;
-        public const byte COMMAND =  1;
+        public const byte MODULE = CreateGroupRequestPacket.MODULE;
+        public const byte COMMAND = CreateGroupRequestPacket.COMMAND;
 
         public bool IsCreated { get; set; }
         public string Message { get; set; }
@@ -33,8 +33,8 @@ namespace TcpConnectors.TestCommon
 
     public class JoinGroupResponsePacket : IServer2ClientPacket
     {
-        public const byte MODULE =  2;
-        public const byte COMMAND =  2;
+        public const byte MODULE = JoinGroupRequestPacket.MODULE;
+        public const byte COMMAND = JoinGroupRequestPacket.COMMAND;
 
         public string GroupName { get; set; }
     }

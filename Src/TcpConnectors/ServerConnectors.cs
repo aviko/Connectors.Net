@@ -6,13 +6,13 @@ namespace TcpConnectors
 {
     public partial class ServerConnectors
     {
-        public ServerConnectors(Dictionary<Tuple<int, int>, Type> typeMap)
+        public ServerConnectors(Dictionary<Tuple<int, int>, Type> packetsMap)
         {
-            _typeMap = typeMap;
-            _typeMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
+            _packetsMap = packetsMap;
+            _packetsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
         }
 
-        public void Configure(Dictionary<Tuple<int, int>, Type> typeMap)
+        public void Configure(Dictionary<Tuple<int, int>, Type> packetsMap)
         {
 
         }

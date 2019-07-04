@@ -11,8 +11,8 @@ namespace TcpConnectors
         private ClientConnectorSettings _settings;
         private int _nextRequestId = 1; //odd numbers
         private int _nextRequestIdAsync = 2; //even numbers
-
-        private System.Timers.Timer _keepAliveTimer = null;
+        private DateTime _lastKeepAliveTime = DateTime.UtcNow;
+        private System.Timers.Timer _reconnectTimer = null;
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
         private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
@@ -20,11 +20,13 @@ namespace TcpConnectors
 
         private void OnRecv(byte[] buf)
         {
+            // module, command
             if (buf[0] == 0) //request response packet
             {
-                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.TypesMap, out var requestId);
+                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out var requestId);
                 if (buf[1] == 0 && requestId == 0) //keep alive
                 {
+                    _lastKeepAliveTime = DateTime.UtcNow;
                     TcpSocketsUtils.Send(_socket, buf, OnSend, OnExcp);
                     Console.WriteLine($"keep alive: {reqPacket}");
                     return;
@@ -41,17 +43,21 @@ namespace TcpConnectors
             }
             else //packet
             {
-                object packet = ConnectorsUtils.DeserializePacket(buf, _settings.TypesMap);
+                object packet = ConnectorsUtils.DeserializePacket(buf, _settings.PacketsMap);
                 OnPacket?.Invoke(buf[0], buf[1], packet);
             }
 
         }
 
-        private void OnExcp(Exception e)
+        private void OnExcp(Exception ex)
         {
             if (_socket != null && _socket.Connected == false)
             {
                 DisconnectInternal();
+            }
+            else
+            {
+                OnException?.Invoke(ex);
             }
         }
 
@@ -66,7 +72,8 @@ namespace TcpConnectors
 
         private void OnSend()
         {
-            Console.WriteLine("ClientConnector.OnSend");
+            OnDebugLog?.Invoke(DebugLogType.OnSend, "");
+
         }
 
         private bool _isInConnectInternal = false;
@@ -75,11 +82,11 @@ namespace TcpConnectors
             try
             {
                 //start keepAlive timer only on first connect
-                if (_keepAliveTimer == null)
+                if (_reconnectTimer == null)
                 {
-                    _keepAliveTimer = new System.Timers.Timer(10_000);
-                    _keepAliveTimer.Elapsed += KeepAliveTimer_Elapsed; ;
-                    _keepAliveTimer.Start();
+                    _reconnectTimer = new System.Timers.Timer(_settings.ReconnectInterval * 10);
+                    _reconnectTimer.Elapsed += ReconnectTimer_Elapsed; ;
+                    _reconnectTimer.Start();
                 }
 
                 if (_isInConnectInternal) return;
@@ -100,14 +107,19 @@ namespace TcpConnectors
                     }
                     catch
                     {
-                        //todo: log
+                        OnDebugLog?.Invoke(DebugLogType.ConnectFailed, $" host:{serverAddress.Item1} port:{serverAddress.Item2} ");
                     }
                 }
                 if (_socket != null)
                 {
                     IsConnected = true;
                     OnConnect?.Invoke();
-                    TcpSocketsUtils.Recv(_socket, OnRecv, OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
+                    TcpSocketsUtils.Recv(
+                        _socket,
+                        OnRecv,
+                        OnExcp,
+                        _settings.ReceiveBufferSize == 0 ? TcpSocketsUtils.ms_DefualtReceiveBufferSize : _settings.ReceiveBufferSize,
+                        true);
                 }
             }
             catch (Exception ex)
@@ -121,8 +133,20 @@ namespace TcpConnectors
 
         }
 
-        private void KeepAliveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void ReconnectTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            if ((DateTime.UtcNow - _lastKeepAliveTime).TotalSeconds > _settings.KeepAliveDisconnectInterval)
+            {
+                if (_socket != null && IsConnected)
+                {
+                    IsConnected = false;
+                    try { _socket.Dispose(); } catch { }
+                    _socket = null;
+                    OnDisconnect?.Invoke();
+
+                }
+            }
+
             if (_socket == null || _socket.Connected == false) //todo: chekc also keep alive status
             {
                 DisconnectInternal();

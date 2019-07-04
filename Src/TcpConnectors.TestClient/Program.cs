@@ -5,6 +5,11 @@ using TcpConnectors.TestCommon;
 
 namespace TcpConnectors.TestClient
 {
+    // todo:
+    // split code to UI + packets handlers + model
+    // ext method for send by type
+    // timeout on send request
+
     class Program
     {
         static void Main(string[] args)
@@ -14,17 +19,19 @@ namespace TcpConnectors.TestClient
 
             var clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
-                TypesMap = PacketsUtils.GetServer2ClientMapping(),
+                PacketsMap = PacketsUtils.GetServer2ClientMapping(),
                 ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1111) }
             });
 
-            clientConnector.Connect();
             clientConnector.OnPacket += ClientConnector_OnPacket;
             clientConnector.OnConnect += ClientConnector_OnConnect;
             clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
             clientConnector.OnException += ClientConnector_OnException;
 
-            var loginRes = clientConnector.SendRequest(1, 1, new LoginRequestPacket() { Username = "u" });
+            clientConnector.Connect();
+
+
+            var loginRes = clientConnector.SendRequest(LoginRequestPacket.MODULE, LoginRequestPacket.MODULE, new LoginRequestPacket() { Username = "u" });
 
             Console.WriteLine($"loginRes: {JsonConvert.SerializeObject(loginRes)}");
 

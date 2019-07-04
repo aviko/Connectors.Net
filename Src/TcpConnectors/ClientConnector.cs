@@ -5,12 +5,17 @@ using System.Threading.Tasks;
 
 namespace TcpConnectors
 {
+    //todos:
+    // verify that user never use module 0
+
     public class ClientConnectorSettings
     {
-        public Dictionary<Tuple<int, int>, Type> TypesMap { get; set; } = new Dictionary<Tuple<int, int>, Type>();
+        public Dictionary<Tuple<int, int>, Type> PacketsMap { get; set; } = new Dictionary<Tuple<int, int>, Type>();
         public bool AutoReconnect { get; set; } = true;
-        public int KeepAliveInterval { get; set; } = 30;
+        public int ReconnectInterval { get; set; } = 10;
+        public int KeepAliveDisconnectInterval { get; set; } = 30;
         public List<Tuple<string, int>> ServerAddressList { get; set; } = new List<Tuple<string, int>>();
+        public int ReceiveBufferSize { get; set; } = 0;
     }
 
 
@@ -21,8 +26,7 @@ namespace TcpConnectors
         public ClientConnector(ClientConnectorSettings settings)
         {
             _settings = settings;
-            _settings.TypesMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
-
+            _settings.PacketsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
         }
 
         public void Connect()
@@ -61,5 +65,13 @@ namespace TcpConnectors
         public event Action OnDisconnect;
 
         public event Action<Exception> OnException;
+
+        public event Action<DebugLogType, string> OnDebugLog;
+    }
+
+    public enum DebugLogType
+    {
+        ConnectFailed = 1,
+        OnSend,
     }
 }

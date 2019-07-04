@@ -34,7 +34,7 @@ namespace TcpConnectors.TestServer
                 Message = errMsg ?? $"Group {packet.GroupName} Created OK",
             };
 
-            return resPacket;
+            return   resPacket;
         }
 
 

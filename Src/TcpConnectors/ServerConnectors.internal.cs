@@ -16,7 +16,7 @@ namespace TcpConnectors
         private Socket _listenerSock;
         private int _nextContextId = 1;
         internal ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
-        internal Dictionary<Tuple<int, int>, Type> _typeMap;
+        internal Dictionary<Tuple<int, int>, Type> _packetsMap;
 
         private long _keepAliveTimestamp = 0;
         private System.Timers.Timer _keepAliveTimer = null;

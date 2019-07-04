@@ -43,7 +43,7 @@ namespace TcpConnectors.TestServer
         private object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
             Console.WriteLine($"ServerConnectors_OnRequestPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
-            return HandleRequestPacket(serverConnectorContext, module, command, (dynamic)packet); ;
+            return HandleRequestPacket(serverConnectorContext, module, command, (dynamic)packet); 
         }
 
         private void ServerConnectors_OnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
