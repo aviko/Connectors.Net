@@ -20,33 +20,61 @@ namespace TcpConnectors
 
         private void OnRecv(byte[] buf)
         {
-            // module, command
-            if (buf[0] == 0) //request response packet
+            try
             {
-                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out var requestId);
-                if (buf[1] == 0 && requestId == 0) //keep alive
+                // module, command
+                if (buf[0] == 0) //request response packet
                 {
-                    _lastKeepAliveTime = DateTime.UtcNow;
-                    TcpSocketsUtils.Send(_socket, buf, OnSend, OnExcp);
-                    Console.WriteLine($"keep alive: {reqPacket}");
-                    return;
-                }
+                    object reqPacket = null;
+                    int requestId = 0;
+                    byte module = 0, command = 0;
+                    try
+                    {
+                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestId, out module, out command);
+                    }
+                    catch (Exception ex) { OnDebugLog?.Invoke(DebugLogType.OnRecvException, ex.ToString()); }
 
-                if (requestId % 2 == 1)
-                {
-                    _reqResHandler.HandleResponse(requestId, reqPacket);
+                    if (command == 0 && requestId == 0) //keep alive
+                    {
+                        _lastKeepAliveTime = DateTime.UtcNow;
+                        TcpSocketsUtils.Send(_socket, buf, OnSend, OnExcp);
+                        Console.WriteLine($"keep alive: {reqPacket}");
+                        return;
+                    }
+
+                    if (requestId % 2 == 1)
+                    {
+                        if (module == 0 && command == 1)
+                        {
+                            _reqResHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                        }
+                        else
+                        {
+                            _reqResHandler.HandleResponse(requestId, reqPacket);
+                        }
+                    }
+                    else
+                    {
+                        if (module == 0 && command == 1)
+                        {
+                            _reqResAsyncHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                        }
+                        else
+                        {
+                            _reqResAsyncHandler.HandleResponse(requestId, reqPacket);
+                        }
+                    }
                 }
-                else
+                else //packet
                 {
-                    _reqResAsyncHandler.HandleResponse(requestId, reqPacket);
+                    object packet = ConnectorsUtils.DeserializePacket(buf, _settings.PacketsMap, out byte module, out byte command);
+                    OnPacket?.Invoke(module, command, packet);
                 }
             }
-            else //packet
+            catch (Exception ex)
             {
-                object packet = ConnectorsUtils.DeserializePacket(buf, _settings.PacketsMap);
-                OnPacket?.Invoke(buf[0], buf[1], packet);
+                OnDebugLog?.Invoke(DebugLogType.OnRecvException, ex.ToString());
             }
-
         }
 
         private void OnExcp(Exception ex)

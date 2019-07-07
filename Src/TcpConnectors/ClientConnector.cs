@@ -27,6 +27,7 @@ namespace TcpConnectors
         {
             _settings = settings;
             _settings.PacketsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
+            _settings.PacketsMap.Add(new Tuple<int, int>(0, 1), typeof(string)); // request response error
         }
 
         public void Connect()
@@ -73,5 +74,6 @@ namespace TcpConnectors
     {
         ConnectFailed = 1,
         OnSend,
+        OnRecvException,
     }
 }

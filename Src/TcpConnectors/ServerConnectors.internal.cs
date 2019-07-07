@@ -11,20 +11,20 @@ namespace TcpConnectors
     partial class ServerConnectors
     {
 
-        private int _port;
         private bool _isDisposed = false;
         private Socket _listenerSock;
         private int _nextContextId = 1;
         internal ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
-        internal Dictionary<Tuple<int, int>, Type> _packetsMap;
+        internal ServerConnectorsSettings _settings;
 
         private long _keepAliveTimestamp = 0;
         private System.Timers.Timer _keepAliveTimer = null;
 
+
         private void StartListeningBlocking()
         {
 
-            IPEndPoint ep = new IPEndPoint(IPAddress.IPv6Any, _port);
+            IPEndPoint ep = new IPEndPoint(IPAddress.IPv6Any, _settings.ListenPort);
 
             _listenerSock = new Socket(
                 IPAddress.IPv6Any.AddressFamily,
@@ -38,7 +38,7 @@ namespace TcpConnectors
 
             if (_keepAliveTimer == null)
             {
-                _keepAliveTimer = new System.Timers.Timer(10_000);
+                _keepAliveTimer = new System.Timers.Timer(_settings.KeepAliveTimerInterval * 1000);
                 _keepAliveTimer.Elapsed += KeepAliveTimer_Elapsed; ;
                 _keepAliveTimer.Start();
             }
@@ -54,7 +54,12 @@ namespace TcpConnectors
                     newContext.Socket = newSocket;
                     _contextMap[id] = newContext;
                     OnNewConnector?.Invoke(newContext);
-                    TcpSocketsUtils.Recv(newSocket, newContext.OnRecv, newContext.OnExcp, TcpSocketsUtils.ms_DefualtReceiveBufferSize, true);
+                    TcpSocketsUtils.Recv(
+                        newSocket,
+                        newContext.OnRecv,
+                        newContext.OnExcp,
+                        _settings.ReceiveBufferSize == 0 ? TcpSocketsUtils.ms_DefualtReceiveBufferSize : _settings.ReceiveBufferSize,
+                        true);
                 }
                 catch (Exception ex)
                 {
@@ -73,10 +78,10 @@ namespace TcpConnectors
             {
                 bool needToDisconnect = true;
                 //check new context
-                if ((DateTime.UtcNow - connector._connectedTime).TotalSeconds < 180) needToDisconnect = false;
+                if ((DateTime.UtcNow - connector._connectedTime).TotalSeconds < _settings.KeepAliveGraceInterval) needToDisconnect = false;
 
                 //_lastRecievedLeepAliveTimestamp less than 30 seconds
-                if ((_keepAliveTimestamp - connector._lastRecievedLeepAliveTimestamp) < 30) needToDisconnect = false;
+                if ((_keepAliveTimestamp - connector._lastRecievedLeepAliveTimestamp) < _settings.KeepAliveDisconnectInterval) needToDisconnect = false;
 
                 if (needToDisconnect)
                 {
@@ -111,6 +116,12 @@ namespace TcpConnectors
         {
             OnException?.Invoke(serverConnectorContext, ex);
         }
+
+        internal void TriggerOnDebugLog(ServerConnectorContext serverConnectorContext, DebugLogType logType, string info)
+        {
+            OnDebugLog?.Invoke(serverConnectorContext, logType, info);
+        }
+
 
     }
 }

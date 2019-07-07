@@ -12,17 +12,29 @@ namespace TcpConnectors.TestServer
 
         public ConnectorsHandler()
         {
-            _serverConnectors = new ServerConnectors(PacketsUtils.GetClient2ServerMapping());
+            _serverConnectors = new ServerConnectors(new ServerConnectorsSettings()
+            {
+                PacketsMap = PacketsUtils.GetClient2ServerMapping(),
+                ListenPort = 1111,
+            });
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
             _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
             _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket;
             _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect;
             _serverConnectors.OnException += ServerConnectors_OnException;
+            _serverConnectors.OnDebugLog += ServerConnectors_OnDebugLog; ;
 
-            _serverConnectors.Listen(1111);
+            _serverConnectors.Listen();
 
         }
 
+        private void ServerConnectors_OnDebugLog(ServerConnectorContext connectorContext, DebugLogType logType, string info)
+        {
+            var remoteEndPoint = "NA";
+            try { remoteEndPoint = connectorContext.Socket.RemoteEndPoint.ToString(); } catch { }
+
+            Console.WriteLine($"ServerConnectors_OnException RemoteEndPoint:{remoteEndPoint} logType:{logType} info:{info}");
+        }
 
         private void ServerConnectors_OnException(ServerConnectorContext connectorContext, Exception exp)
         {
@@ -43,7 +55,7 @@ namespace TcpConnectors.TestServer
         private object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
             Console.WriteLine($"ServerConnectors_OnRequestPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
-            return HandleRequestPacket(serverConnectorContext, module, command, (dynamic)packet); 
+            return HandleRequestPacket(serverConnectorContext, module, command, (dynamic)packet);
         }
 
         private void ServerConnectors_OnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)

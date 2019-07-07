@@ -27,6 +27,7 @@ namespace TcpConnectors.TestClient
             clientConnector.OnConnect += ClientConnector_OnConnect;
             clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
             clientConnector.OnException += ClientConnector_OnException;
+            clientConnector.OnDebugLog += ClientConnector_OnDebugLog; ;
 
             clientConnector.Connect();
 
@@ -47,13 +48,32 @@ namespace TcpConnectors.TestClient
                 }
                 else if (line == "CG")
                 {
-                    var res = clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket {GroupName = "MyGroup" });
+                    var res = clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket { GroupName = "MyGroup" });
                     Console.WriteLine($"Response: { JsonConvert.SerializeObject(res)}");
                 }
                 else if (line == "r")
                 {
-                    var res = clientConnector.SendRequestAsync(1, 1, "reqRes").Result;
-                    Console.WriteLine($"Response: { res}");
+                    try
+                    {
+                        var res = clientConnector.SendRequestAsync(1, 1, "reqRes Async").Result;
+                        Console.WriteLine($"Response: { res}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Exception in SendRequestAsync");
+                    }
+                }
+                else if (line == "R")
+                {
+                    try
+                    {
+                        var res = clientConnector.SendRequest(1, 1, "reqRes blocking");
+                        Console.WriteLine($"Response: { res}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Exception in SendRequest");
+                    }
                 }
                 else
                 {
@@ -68,6 +88,11 @@ namespace TcpConnectors.TestClient
 
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
+        }
+
+        private static void ClientConnector_OnDebugLog(DebugLogType logType, string info)
+        {
+            Console.WriteLine($"ClientConnector_OnDebugLog logType:{logType} info:{info}");
         }
 
         private static void ClientConnector_OnException(Exception exp)

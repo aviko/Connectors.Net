@@ -4,12 +4,26 @@ using System.Threading;
 
 namespace TcpConnectors
 {
+
+
+    public class ServerConnectorsSettings
+    {
+        public Dictionary<Tuple<int, int>, Type> PacketsMap { get; set; } = new Dictionary<Tuple<int, int>, Type>();
+        public int ListenPort { get; set; } = 30;
+        public int KeepAliveGraceInterval { get; set; } = 120;
+        public int KeepAliveTimerInterval { get; set; } = 10;
+        public int KeepAliveDisconnectInterval { get; set; } = 30;
+        public int ReceiveBufferSize { get; set; } = 0;
+    }
+
+
     public partial class ServerConnectors
     {
-        public ServerConnectors(Dictionary<Tuple<int, int>, Type> packetsMap)
+        public ServerConnectors(ServerConnectorsSettings settings)
         {
-            _packetsMap = packetsMap;
-            _packetsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
+
+            _settings = settings;
+            _settings.PacketsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
         }
 
         public void Configure(Dictionary<Tuple<int, int>, Type> packetsMap)
@@ -17,9 +31,8 @@ namespace TcpConnectors
 
         }
 
-        public void Listen(int port)
+        public void Listen()
         {
-            _port = port;
             new Thread(StartListeningBlocking).Start();
         }
 
@@ -54,5 +67,8 @@ namespace TcpConnectors
         public event Action<ServerConnectorContext> OnDisconnect;
 
         public event Action<ServerConnectorContext, Exception> OnException;
+
+        public event Action<ServerConnectorContext, DebugLogType, string> OnDebugLog;
+
     }
 }

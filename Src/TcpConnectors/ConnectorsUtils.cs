@@ -6,9 +6,9 @@ namespace TcpConnectors
 {
     internal static class ConnectorsUtils
     {
-        internal static object DeserializePacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap)
+        internal static object DeserializePacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out byte module, out byte command)
         {
-            return Deserialize(2, buf, packetsMap);
+            return Deserialize(2, buf, packetsMap, out module, out command);
         }
 
         internal static byte[] SerializePacket(int module, int command, object packet)
@@ -16,10 +16,11 @@ namespace TcpConnectors
             return Serialize(2, module, command, packet);
         }
 
-        internal static object DeserializeRequestPacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out int requestId)
+        internal static object DeserializeRequestPacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out int requestId, out byte module, out byte command)
         {
             requestId = BitConverter.ToInt32(buf, 1);
-            return Deserialize(7, buf, packetsMap);
+
+            return Deserialize(7, buf, packetsMap, out module, out command);
         }
 
         internal static byte[] SerializeRequestPacket(int module, int command, object packet, int requestId)
@@ -30,12 +31,14 @@ namespace TcpConnectors
             return buf;
         }
 
-        private static object Deserialize(int offset, byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap)
+        private static object Deserialize(int offset, byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out byte module, out byte command)
         {
             var destBuf = new byte[buf.Length - offset];
             Array.Copy(buf, offset, destBuf, 0, buf.Length - offset);
+            module = buf[offset - 2];
+            command = buf[offset - 1];
 
-            packetsMap.TryGetValue(new Tuple<int, int>(buf[offset - 2], buf[offset - 1]), out var type);
+            packetsMap.TryGetValue(new Tuple<int, int>(module, command), out var type);
 
             var packet = BinaryConverter.BinaryConvert.DeserializeObject(type, destBuf);
             return packet;

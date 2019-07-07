@@ -13,7 +13,6 @@ namespace TcpConnectors
             internal object Packet { get; set; }
         }
 
-
         private ServerConnectors _serverConnectors;
         internal long _lastRecievedLeepAliveTimestamp;
         internal DateTime _connectedTime = default(DateTime);
@@ -27,33 +26,57 @@ namespace TcpConnectors
 
         internal void OnRecv(byte[] buf)
         {
-            if (buf[0] == 0) //request response packet
+            try
             {
-                var reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._packetsMap, out var requestId);
-
-                if (buf[1] == 0 && requestId == 0) //keep alive
+                if (buf[0] == 0) //request response packet
                 {
-                    _lastRecievedLeepAliveTimestamp = (long)reqPacket;
-                    Console.WriteLine($"keep alive: {reqPacket}");
-                    return;
+                    object reqPacket = null;
+                    int requestId = 0;
+                    string exceptionMsg = null;
+                    byte module = 0;
+                    byte command = 0;
+                    try
+                    {
+                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestId, out module, out command);
+                    }
+                    catch (Exception ex) { exceptionMsg = ex.Message; }
+
+
+                    if (buf[1] == 0 && requestId == 0) //keep alive
+                    {
+                        _lastRecievedLeepAliveTimestamp = (long)reqPacket;
+                        Console.WriteLine($"keep alive: {reqPacket}");
+                        return;
+                    }
+
+
+                    if (exceptionMsg != null)
+                    {
+                        var resBuf = ConnectorsUtils.SerializeRequestPacket(0, 1, exceptionMsg, requestId);
+                        TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+                    }
+                    else
+                    {
+                        var rrData = new RequestResponseData()
+                        {
+                            RequestId = requestId,
+                            Module = module,
+                            Command = command,
+                            Packet = reqPacket,
+                        };
+                        new Task(() => HandleRequestResponse(rrData)).Start();
+                    }
                 }
-
-                var rrData = new RequestResponseData()
+                else //packet
                 {
-                    RequestId = requestId,
-                    Module = buf[5],
-                    Command = buf[6],
-                    Packet = reqPacket,
-                };
-
-                new Task(() => HandleRequestResponse(rrData)).Start();
+                    var packet = ConnectorsUtils.DeserializePacket(buf, _serverConnectors._settings.PacketsMap, out byte module, out byte command);
+                    _serverConnectors.TriggerOnPacket(this, module, command, packet);
+                }
             }
-            else //packet
+            catch (Exception ex)
             {
-                var packet = ConnectorsUtils.DeserializePacket(buf, _serverConnectors._packetsMap);
-                _serverConnectors.TriggerOnPacket(this, buf[0], buf[1], packet);
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRecvException, ex.ToString());
             }
-
         }
 
         private void HandleRequestResponse(RequestResponseData rrData)
