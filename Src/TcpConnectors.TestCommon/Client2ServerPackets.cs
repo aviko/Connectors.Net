@@ -58,6 +58,8 @@ namespace TcpConnectors.TestCommon
     {
         public const byte MODULE =  2;
         public const byte COMMAND =  5;
+
+        public string GroupName { get; set; }
     }
 
     //----------------------------------------------------

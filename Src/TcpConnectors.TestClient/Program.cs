@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TcpConnectors.TestCommon;
 
 namespace TcpConnectors.TestClient
@@ -12,82 +13,88 @@ namespace TcpConnectors.TestClient
 
     class Program
     {
+
+        private static MenusHandler _menusHandler = new MenusHandler();
+
+        internal static ClientConnector _clientConnector = null;
+
         static void Main(string[] args)
         {
             Console.WriteLine("TcpConnectors.TestClient");
 
 
-            var clientConnector = new ClientConnector(new ClientConnectorSettings()
+            _clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
                 PacketsMap = PacketsUtils.GetServer2ClientMapping(),
                 ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1111) }
             });
 
-            clientConnector.OnPacket += ClientConnector_OnPacket;
-            clientConnector.OnConnect += ClientConnector_OnConnect;
-            clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
-            clientConnector.OnException += ClientConnector_OnException;
-            clientConnector.OnDebugLog += ClientConnector_OnDebugLog; ;
+            _clientConnector.OnPacket += ClientConnector_OnPacket;
+            _clientConnector.OnConnect += ClientConnector_OnConnect;
+            _clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
+            _clientConnector.OnException += ClientConnector_OnException;
+            _clientConnector.OnDebugLog += ClientConnector_OnDebugLog; ;
 
-            clientConnector.Connect();
-
-
-            var loginRes = clientConnector.SendRequest(LoginRequestPacket.MODULE, LoginRequestPacket.MODULE, new LoginRequestPacket() { Username = "u" });
-
-            Console.WriteLine($"loginRes: {JsonConvert.SerializeObject(loginRes)}");
+            _clientConnector.Connect();
 
 
 
 
-            while (true)
-            {
-                var line = Console.ReadLine();
-                if (line == "Q")
-                {
-                    break;
-                }
-                else if (line == "CG")
-                {
-                    var res = clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket { GroupName = "MyGroup" });
-                    Console.WriteLine($"Response: { JsonConvert.SerializeObject(res)}");
-                }
-                else if (line == "r")
-                {
-                    try
-                    {
-                        var res = clientConnector.SendRequestAsync(1, 1, "reqRes Async").Result;
-                        Console.WriteLine($"Response: { res}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Exception in SendRequestAsync");
-                    }
-                }
-                else if (line == "R")
-                {
-                    try
-                    {
-                        var res = clientConnector.SendRequest(1, 1, "reqRes blocking");
-                        Console.WriteLine($"Response: { res}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Exception in SendRequest");
-                    }
-                }
-                else
-                {
-                    var msgPacket = new SendGroupMessagePacket()
-                    {
-                        Message = line
-                    };
-                    clientConnector.Send(3, 1, msgPacket);
-                }
+            _menusHandler.TopLevelMenu();
 
-            }
 
-            Console.WriteLine("Press Enter to continue...");
-            Console.ReadLine();
+            //while (true)
+            //{
+            //    ConsoleUI.ShowMenu("test", Action1, Action2);
+            //    var line = Console.ReadLine();
+
+
+            //    if (line == "Q")
+            //    {
+            //        break;
+            //    }
+            //    else if (line == "CG")
+            //    {
+            //        var res = _clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket { GroupName = "MyGroup" });
+            //        Console.WriteLine($"Response: { JsonConvert.SerializeObject(res)}");
+            //    }
+            //    else if (line == "r")
+            //    {
+            //        try
+            //        {
+            //            var res = _clientConnector.SendRequestAsync(1, 1, "reqRes Async").Result;
+            //            Console.WriteLine($"Response: { res}");
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Console.WriteLine("Exception in SendRequestAsync");
+            //        }
+            //    }
+            //    else if (line == "R")
+            //    {
+            //        try
+            //        {
+            //            var res = _clientConnector.SendRequest(1, 1, "reqRes blocking");
+            //            Console.WriteLine($"Response: { res}");
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Console.WriteLine("Exception in SendRequest");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        var msgPacket = new SendGroupMessagePacket()
+            //        {
+            //            Message = line
+            //        };
+            //        _clientConnector.Send(3, 1, msgPacket);
+            //    }
+
+            //}
+
+            //Console.WriteLine("Press Enter to continue...");
+            //Console.ReadLine();
         }
 
         private static void ClientConnector_OnDebugLog(DebugLogType logType, string info)
@@ -108,6 +115,13 @@ namespace TcpConnectors.TestClient
         private static void ClientConnector_OnConnect()
         {
             Console.WriteLine($"ClientConnector_OnConnect");
+            new Task(Login).Start();
+        }
+
+        private static void Login()
+        {
+            var loginRes = _clientConnector.SendRequest(LoginRequestPacket.MODULE, LoginRequestPacket.MODULE, new LoginRequestPacket() { Username = "u" });
+            Console.WriteLine($"loginRes: {JsonConvert.SerializeObject(loginRes)}");
         }
 
         private static void ClientConnector_OnPacket(int module, int command, object packet)

@@ -112,7 +112,7 @@ namespace TcpConnectors
                 //start keepAlive timer only on first connect
                 if (_reconnectTimer == null)
                 {
-                    _reconnectTimer = new System.Timers.Timer(_settings.ReconnectInterval * 10);
+                    _reconnectTimer = new System.Timers.Timer(_settings.ReconnectInterval * 1000);
                     _reconnectTimer.Elapsed += ReconnectTimer_Elapsed; ;
                     _reconnectTimer.Start();
                 }
