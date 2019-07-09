@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TcpConnectors.TestCommon;
@@ -50,17 +51,24 @@ namespace TcpConnectors.TestServer
             try { remoteEndPoint = serverConnectorContext.Socket.RemoteEndPoint.ToString(); } catch { }
 
             Console.WriteLine($"ServerConnectors_OnDisconnect RemoteEndPoint:{remoteEndPoint}");
+
+            if (serverConnectorContext.Data != null)
+            {
+                Program.ChatServerModel.Logout(serverConnectorContext.Data.ToString(), serverConnectorContext);
+            }
         }
 
         private object ServerConnectors_OnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
-            Console.WriteLine($"ServerConnectors_OnRequestPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
-            return HandleRequestPacket(serverConnectorContext, module, command, (dynamic)packet);
+            Console.WriteLine($"ServerConnectors_OnRequestPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} \r\n module:{module}  command:{command} \r\n packet:{packet.GetType().Name + ": " + JsonConvert.SerializeObject(packet)}");
+            var resPacket = HandleRequestPacket(serverConnectorContext, module, command, (dynamic)packet);
+            Console.WriteLine($"===> res packet:{resPacket.GetType().Name + ": " + JsonConvert.SerializeObject(resPacket)}");
+            return resPacket;
         }
 
         private void ServerConnectors_OnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
-            Console.WriteLine($"ServerConnectors_OnPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} module:{module}  command:{command} packet:{packet}");
+            Console.WriteLine($"ServerConnectors_OnPacket RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()} \r\n module:{module}  command:{command} \r\n packet:{packet.GetType().Name + ": " + JsonConvert.SerializeObject(packet)}");
 
             HandlePacket(serverConnectorContext, module, command, (dynamic)packet);
         }

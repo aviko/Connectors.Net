@@ -31,6 +31,25 @@ namespace TcpConnectors.TestClient
 
         }
 
+        public static string ShowMenu(string title, string[] texts)
+        {
+            int[] retcodes = new int[texts.Length + 1];
+            string[] textsEx = new string[texts.Length + 1];
+
+            retcodes[0] = 0;
+            textsEx[0] = "Exit Menu";
+
+            for (int i = 1; i < texts.Length + 1; i++)
+            {
+                retcodes[i] = i;
+                textsEx[i] = texts[i - 1];
+            }
+
+            var index = ShowMenu(title, retcodes, textsEx);
+            if (index == 0) return null;
+            return texts[index - 1];
+        }
+
         public static int ShowMenu(string title, int[] retcodes, string[] texts)
         {
             lock (_lockObject)

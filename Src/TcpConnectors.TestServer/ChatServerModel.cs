@@ -20,10 +20,35 @@ namespace TcpConnectors.TestServer
         }
 
         public Dictionary<string, ChatGroup> Groups { get; set; } = new Dictionary<string, ChatGroup>();
-        public HashSet<string> Users { get; set; } = new HashSet<string>();
+        public Dictionary<string, HashSet<int>> Users { get; set; } = new Dictionary<string, HashSet<int>>();
 
+        internal string Login(string username, ServerConnectorContext serverConnectorContext)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return "username is empty";
+            }
 
-        internal string CreateGroup(string groupName, string creatorName)
+            if (Users.TryGetValue(username, out var connectorsIds) == false)
+            {
+                connectorsIds = new HashSet<int>();
+                Users[username] = connectorsIds;
+            }
+            connectorsIds.Add(serverConnectorContext.Id); //user can be connected multiple times
+            serverConnectorContext.Data = username;
+
+            return null;
+        }
+
+        internal void Logout(string username, ServerConnectorContext serverConnectorContext)
+        {
+            if (Users.TryGetValue(username, out var connectorsIds))
+            {
+                connectorsIds.Remove(serverConnectorContext.Id);
+            }
+        }
+
+        internal string CreateGroup(string groupName, string userName)
         {
             if (string.IsNullOrEmpty(groupName))
             {
@@ -36,8 +61,52 @@ namespace TcpConnectors.TestServer
             }
 
             var newGroup = new ChatGroup { GroupName = groupName };
-            newGroup.Members.Add(creatorName);
+            newGroup.Members.Add(userName);
             Groups.Add(groupName, newGroup);
+
+            return null;
+        }
+
+        internal string JoinGroup(string groupName, string userName)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return "GroupName empty";
+            }
+
+            if (Groups.TryGetValue(groupName, out var chatGroup) == false)
+            {
+                return $"GroupName {groupName} not exist";
+            }
+
+            if (chatGroup.Members.Contains(userName))
+            {
+                return $"User {userName} already in group {groupName}";
+            }
+
+            chatGroup.Members.Add(userName);
+
+            return null;
+        }
+
+        internal string LeaveGroup(string groupName, string userName)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return "GroupName empty";
+            }
+
+            if (Groups.TryGetValue(groupName, out var chatGroup) == false)
+            {
+                return $"GroupName {groupName} not exist";
+            }
+
+            if (chatGroup.Members.Contains(userName) == false)
+            {
+                return $"User {userName} not in group {groupName}";
+            }
+
+            chatGroup.Members.Remove(userName);
 
             return null;
         }

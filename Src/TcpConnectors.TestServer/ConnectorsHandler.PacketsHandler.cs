@@ -21,5 +21,15 @@ namespace TcpConnectors.TestServer
 
             _serverConnectors.Send(x => true, module, command, msgPacket);
         }
+
+        internal void HandlePacket(ServerConnectorContext serverConnectorContext, int module, int command, SendPrivateMessagePacket packet)
+        {
+            var msgPacket = new OnMessagePacket()
+            {
+                Message = packet.Message,
+            };
+
+            _serverConnectors.Send(x => x.Data?.ToString() == packet.Username, module, command, msgPacket);
+        }
     }
 }

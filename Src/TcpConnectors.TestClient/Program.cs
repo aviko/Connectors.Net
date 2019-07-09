@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TcpConnectors.TestCommon;
 
@@ -17,6 +18,7 @@ namespace TcpConnectors.TestClient
         private static MenusHandler _menusHandler = new MenusHandler();
 
         internal static ClientConnector _clientConnector = null;
+        internal static string _username;
 
         static void Main(string[] args)
         {
@@ -37,64 +39,8 @@ namespace TcpConnectors.TestClient
 
             _clientConnector.Connect();
 
+            Thread.Sleep(-1);
 
-
-
-            _menusHandler.TopLevelMenu();
-
-
-            //while (true)
-            //{
-            //    ConsoleUI.ShowMenu("test", Action1, Action2);
-            //    var line = Console.ReadLine();
-
-
-            //    if (line == "Q")
-            //    {
-            //        break;
-            //    }
-            //    else if (line == "CG")
-            //    {
-            //        var res = _clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket { GroupName = "MyGroup" });
-            //        Console.WriteLine($"Response: { JsonConvert.SerializeObject(res)}");
-            //    }
-            //    else if (line == "r")
-            //    {
-            //        try
-            //        {
-            //            var res = _clientConnector.SendRequestAsync(1, 1, "reqRes Async").Result;
-            //            Console.WriteLine($"Response: { res}");
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Console.WriteLine("Exception in SendRequestAsync");
-            //        }
-            //    }
-            //    else if (line == "R")
-            //    {
-            //        try
-            //        {
-            //            var res = _clientConnector.SendRequest(1, 1, "reqRes blocking");
-            //            Console.WriteLine($"Response: { res}");
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Console.WriteLine("Exception in SendRequest");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        var msgPacket = new SendGroupMessagePacket()
-            //        {
-            //            Message = line
-            //        };
-            //        _clientConnector.Send(3, 1, msgPacket);
-            //    }
-
-            //}
-
-            //Console.WriteLine("Press Enter to continue...");
-            //Console.ReadLine();
         }
 
         private static void ClientConnector_OnDebugLog(DebugLogType logType, string info)
@@ -118,10 +64,21 @@ namespace TcpConnectors.TestClient
             new Task(Login).Start();
         }
 
-        private static void Login()
+        private static async void Login()
         {
-            var loginRes = _clientConnector.SendRequest(LoginRequestPacket.MODULE, LoginRequestPacket.MODULE, new LoginRequestPacket() { Username = "u" });
-            Console.WriteLine($"loginRes: {JsonConvert.SerializeObject(loginRes)}");
+            while (true)
+            {
+                Console.WriteLine($"Enter Username");
+                _username = Console.ReadLine();
+                var loginRes = await _clientConnector.SendRequestAsync(LoginRequestPacket.MODULE, LoginRequestPacket.MODULE, new LoginRequestPacket() { Username = _username }) as LoginResponsePacket;
+                Console.WriteLine($"loginRes: {JsonConvert.SerializeObject(loginRes)}");
+
+                if (loginRes.RetCode == true)
+                {
+                    new Task(() => _menusHandler.TopLevelMenu()).Start();                   
+                    return;
+                }
+            }
         }
 
         private static void ClientConnector_OnPacket(int module, int command, object packet)
