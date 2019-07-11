@@ -81,9 +81,17 @@ namespace TcpConnectors
 
         private void HandleRequestResponse(RequestResponseData rrData)
         {
-            var res = _serverConnectors.TriggerOnRequestPacket(this, rrData.Module, rrData.Command, rrData.Packet);
-            var resBuf = ConnectorsUtils.SerializeRequestPacket(rrData.Module, rrData.Command, res, rrData.RequestId);
-            TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+            try
+            {
+                var res = _serverConnectors.TriggerOnRequestPacket(this, rrData.Module, rrData.Command, rrData.Packet);
+                var resBuf = ConnectorsUtils.SerializeRequestPacket(rrData.Module, rrData.Command, res, rrData.RequestId);
+                TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+            }
+            catch (Exception ex)
+            {
+                var resBuf = ConnectorsUtils.SerializeRequestPacket(0, 1, ex.Message, rrData.RequestId);
+                TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+            }
         }
 
         internal void OnSend()

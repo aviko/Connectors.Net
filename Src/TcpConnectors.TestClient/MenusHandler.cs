@@ -12,15 +12,22 @@ namespace TcpConnectors.TestClient
         {
             while (true)
             {
-                ConsoleUI.ShowMenu("Select Action",
-                    ActionExit,
-                    ActionSendGroupMessage,
-                    ActionSendPrivateMessage,
-                    ActionCreateGroup,
-                    ActionJoinGroup,
-                    ActionLeaveGroup,
-                    ActionGetGroups,
-                    ActionGetGroupInfo);
+                try
+                {
+                    ConsoleUI.ShowMenu("Select Action",
+                        ActionExit,
+                        ActionSendGroupMessage,
+                        ActionSendPrivateMessage,
+                        ActionCreateGroup,
+                        ActionJoinGroup,
+                        ActionLeaveGroup,
+                        ActionGetGroups,
+                        ActionGetGroupInfo);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Response Exception: { ex.ToString()}");
+                }
             }
         }
 
@@ -67,6 +74,7 @@ namespace TcpConnectors.TestClient
             var line = Console.ReadLine();
             var res = Program._clientConnector.SendRequest(CreateGroupRequestPacket.MODULE, CreateGroupRequestPacket.COMMAND, new CreateGroupRequestPacket { GroupName = line });
             Console.WriteLine($"Response: { JsonConvert.SerializeObject(res)}");
+
         }
 
         private void ActionJoinGroup()

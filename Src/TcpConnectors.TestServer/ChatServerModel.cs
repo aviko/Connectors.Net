@@ -57,7 +57,8 @@ namespace TcpConnectors.TestServer
 
             if (Groups.TryGetValue(groupName, out var chatGroup))
             {
-                return $"GroupName {groupName} already exist";
+                throw new Exception($"GroupName {groupName} already exist");
+                //return $"GroupName {groupName} already exist";
             }
 
             var newGroup = new ChatGroup { GroupName = groupName };
