@@ -47,7 +47,11 @@ namespace TcpConnectors
 
         private static byte[] Serialize(int offset, int module, int command, object packet)
         {
-            byte[] payloadBuf = BinaryConverter.BinaryConvert.SerializeObject(packet == null ? typeof(object) : packet.GetType(), packet);
+            var type = packet == null ? typeof(object) : packet.GetType();
+
+            //Console.WriteLine($"ConnectorsUtils.Serialize type={type.Name}");
+
+            byte[] payloadBuf = BinaryConverter.BinaryConvert.SerializeObject(type, packet);
             byte[] output = new byte[offset + payloadBuf.Length];
 
             output[offset - 2] = (byte)module;
