@@ -8,8 +8,11 @@ namespace TcpConnectors.TestClient
 {
     class MenusHandler
     {
+        internal bool _isStarted = false;
+
         internal void TopLevelMenu()
         {
+            _isStarted = true;
             while (true)
             {
                 try

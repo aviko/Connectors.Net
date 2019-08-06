@@ -18,17 +18,16 @@ namespace TcpConnectors
         public int ReceiveBufferSize { get; set; } = 0;
     }
 
-
-    public partial class ClientConnector
+    //todo: dispose
+    public partial class ClientConnector : IDisposable
     {
         public bool IsConnected { get; private set; } = false;
 
         public ClientConnector(ClientConnectorSettings settings)
         {
-            _settings = settings;
-            _settings.PacketsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
-            _settings.PacketsMap.Add(new Tuple<int, int>(0, 1), typeof(string)); // request response error
+            Init(settings);
         }
+
 
         public void Connect()
         {

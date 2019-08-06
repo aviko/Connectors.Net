@@ -34,7 +34,7 @@ namespace TcpConnectors.TestServer
             var remoteEndPoint = "NA";
             try { remoteEndPoint = connectorContext.Socket.RemoteEndPoint.ToString(); } catch { }
 
-            Console.WriteLine($"ServerConnectors_OnException RemoteEndPoint:{remoteEndPoint} logType:{logType} info:{info}");
+            Console.WriteLine($"ServerConnectors_OnDebugLog RemoteEndPoint:{remoteEndPoint} logType:{logType} info:{info}");
         }
 
         private void ServerConnectors_OnException(ServerConnectorContext connectorContext, Exception exp)

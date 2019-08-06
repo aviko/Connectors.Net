@@ -75,7 +75,10 @@ namespace TcpConnectors.TestClient
 
                 if (loginRes.RetCode == true)
                 {
-                    new Task(() => _menusHandler.TopLevelMenu()).Start();                   
+                    if (_menusHandler._isStarted == false)
+                    {
+                        new Task(() => _menusHandler.TopLevelMenu()).Start();
+                    }
                     return;
                 }
             }
@@ -84,6 +87,11 @@ namespace TcpConnectors.TestClient
         private static void ClientConnector_OnPacket(int module, int command, object packet)
         {
             Console.WriteLine($"ClientConnector_OnPacket!!!! module:{module} command:{command} packet:{JsonConvert.SerializeObject(packet)}");
+
+            //Console.WriteLine($"start sleep ");
+            //Thread.Sleep(40 * 1000);
+            //Console.WriteLine($"end sleep ");
+
         }
 
 

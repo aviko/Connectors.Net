@@ -96,6 +96,7 @@ namespace TcpConnectors
 
         internal void OnSend()
         {
+            _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnSend, "");
             //Console.WriteLine("ServerConnectorContext.OnSend()");
         }
 

@@ -19,11 +19,17 @@ namespace TcpConnectors.TestServer
         {
 
             string errMsg = Program.ChatServerModel.Login(packet.Username, serverConnectorContext);
+            bool retcode = errMsg == null;
+
+            if (retcode == true)
+            {
+                Program.ChatServerModel.JoinGroup("Lobby", serverConnectorContext.Id.ToString());
+            }
 
             var resPacket = new LoginResponsePacket()
             {
-                RetCode = errMsg == null,
-                Message = errMsg == null ? "Login OK" : errMsg
+                RetCode = retcode,
+                Message = retcode ? "Login OK" : errMsg
             };
 
             return resPacket;

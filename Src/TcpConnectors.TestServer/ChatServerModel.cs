@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
@@ -16,11 +17,11 @@ namespace TcpConnectors.TestServer
     {
         public ChatServerModel()
         {
-            Groups.Add("Lobby", new ChatGroup() { GroupName = "Lobby" });
+            Groups["Lobby"] = new ChatGroup() { GroupName = "Lobby" };
         }
 
-        public Dictionary<string, ChatGroup> Groups { get; set; } = new Dictionary<string, ChatGroup>();
-        public Dictionary<string, HashSet<int>> Users { get; set; } = new Dictionary<string, HashSet<int>>();
+        public ConcurrentDictionary<string, ChatGroup> Groups { get; set; } = new ConcurrentDictionary<string, ChatGroup>();
+        public ConcurrentDictionary<string, HashSet<int>> Users { get; set; } = new ConcurrentDictionary<string, HashSet<int>>();
 
         internal string Login(string username, ServerConnectorContext serverConnectorContext)
         {
@@ -63,7 +64,7 @@ namespace TcpConnectors.TestServer
 
             var newGroup = new ChatGroup { GroupName = groupName };
             newGroup.Members.Add(userName);
-            Groups.Add(groupName, newGroup);
+            Groups[groupName] = newGroup;
 
             return null;
         }

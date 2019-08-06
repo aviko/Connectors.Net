@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace TcpConnectors
 {
@@ -13,10 +15,21 @@ namespace TcpConnectors
         private int _nextRequestIdAsync = 2; //even numbers
         private DateTime _lastKeepAliveTime = DateTime.UtcNow;
         private System.Timers.Timer _reconnectTimer = null;
+        private bool _disposed = false;
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
         private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
 
+        private BlockingCollection<Tuple<int, int, object>> _packetsQueue = new BlockingCollection<Tuple<int, int, object>>();
+
+        private void Init(ClientConnectorSettings settings)
+        {
+            _settings = settings;
+            _settings.PacketsMap.Add(new Tuple<int, int>(0, 0), typeof(long)); // keep alive
+            _settings.PacketsMap.Add(new Tuple<int, int>(0, 1), typeof(string)); // request response error
+
+            new Thread(PacketsQueueWorker).Start();
+        }
 
         private void OnRecv(byte[] buf)
         {
@@ -68,7 +81,7 @@ namespace TcpConnectors
                 else //packet
                 {
                     object packet = ConnectorsUtils.DeserializePacket(buf, _settings.PacketsMap, out byte module, out byte command);
-                    OnPacket?.Invoke(module, command, packet);
+                    _packetsQueue.Add(new Tuple<int, int, object>(module, command, packet));
                 }
             }
             catch (Exception ex)
@@ -100,7 +113,7 @@ namespace TcpConnectors
 
         private void OnSend()
         {
-            OnDebugLog?.Invoke(DebugLogType.OnSend, "");
+            OnDebugLog?.Invoke(DebugLogType.OnSend, "sent");
 
         }
 
@@ -161,8 +174,20 @@ namespace TcpConnectors
 
         }
 
+        private void PacketsQueueWorker(object obj)
+        {
+            while (_disposed == false)
+            {
+                var tuple = _packetsQueue.Take();
+                OnPacket?.Invoke(tuple.Item1, tuple.Item2, tuple.Item3);//module, command, packet
+
+            }
+        }
+
         private void ReconnectTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            if (_disposed) return;
+
             if ((DateTime.UtcNow - _lastKeepAliveTime).TotalSeconds > _settings.KeepAliveDisconnectInterval)
             {
                 if (_socket != null && IsConnected)
@@ -183,6 +208,19 @@ namespace TcpConnectors
                     ConnectInternal();
                 }
             }
+        }
+
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try
+            {
+                _reconnectTimer.Stop();
+                _socket.Close();
+            }
+            catch { }
         }
     }
 }

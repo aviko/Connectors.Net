@@ -19,7 +19,12 @@ namespace TcpConnectors.TestServer
                 Message = packet.Message,
             };
 
-            _serverConnectors.Send(x => true, module, command, msgPacket);
+            if (Program.ChatServerModel.Groups.TryGetValue(packet.GroupName, out var chatGroup) == false)
+            {
+                return;
+            }
+
+            _serverConnectors.Send(x => chatGroup.Members.Contains(x.Id.ToString()), module, command, msgPacket);
         }
 
         internal void HandlePacket(ServerConnectorContext serverConnectorContext, int module, int command, SendPrivateMessagePacket packet)
