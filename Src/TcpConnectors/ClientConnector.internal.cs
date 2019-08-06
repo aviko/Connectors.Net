@@ -15,7 +15,7 @@ namespace TcpConnectors
         private int _nextRequestIdAsync = 2; //even numbers
         private DateTime _lastKeepAliveTime = DateTime.UtcNow;
         private System.Timers.Timer _reconnectTimer = null;
-        private bool _disposed = false;
+        private bool _isDisposed = false;
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
         private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
@@ -174,9 +174,9 @@ namespace TcpConnectors
 
         }
 
-        private void PacketsQueueWorker(object obj)
+        private void PacketsQueueWorker()
         {
-            while (_disposed == false)
+            while (_isDisposed == false)
             {
                 var tuple = _packetsQueue.Take();
                 OnPacket?.Invoke(tuple.Item1, tuple.Item2, tuple.Item3);//module, command, packet
@@ -186,7 +186,7 @@ namespace TcpConnectors
 
         private void ReconnectTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (_disposed) return;
+            if (_isDisposed) return;
 
             if ((DateTime.UtcNow - _lastKeepAliveTime).TotalSeconds > _settings.KeepAliveDisconnectInterval)
             {
@@ -213,8 +213,8 @@ namespace TcpConnectors
 
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
+            if (_isDisposed) return;
+            _isDisposed = true;
             try
             {
                 _reconnectTimer.Stop();

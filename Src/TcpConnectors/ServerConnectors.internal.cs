@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Timers;
 
 namespace TcpConnectors
@@ -16,6 +17,8 @@ namespace TcpConnectors
         private int _nextContextId = 1;
         internal ConcurrentDictionary<int, ServerConnectorContext> _contextMap = new ConcurrentDictionary<int, ServerConnectorContext>();
         internal ServerConnectorsSettings _settings;
+
+        private BlockingCollection<Tuple<ServerConnectorContext, int, int, object>> _packetsQueue = new BlockingCollection<Tuple<ServerConnectorContext, int, int, object>>();
 
         private long _keepAliveTimestamp = 0;
         private System.Timers.Timer _keepAliveTimer = null;
@@ -42,6 +45,9 @@ namespace TcpConnectors
                 _keepAliveTimer.Elapsed += KeepAliveTimer_Elapsed; ;
                 _keepAliveTimer.Start();
             }
+
+            new Thread(PacketsQueueWorker).Start();
+
 
             while (!_isDisposed)
             {
@@ -99,7 +105,7 @@ namespace TcpConnectors
 
         internal void TriggerOnPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
-            OnPacket?.Invoke(serverConnectorContext, module, command, packet);
+            _packetsQueue.Add(new Tuple<ServerConnectorContext, int, int, object>(serverConnectorContext, module, command, packet));
         }
 
         internal object TriggerOnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
@@ -120,6 +126,17 @@ namespace TcpConnectors
         internal void TriggerOnDebugLog(ServerConnectorContext serverConnectorContext, DebugLogType logType, string info)
         {
             OnDebugLog?.Invoke(serverConnectorContext, logType, info);
+        }
+
+
+        private void PacketsQueueWorker()
+        {
+            while (!_isDisposed) 
+            {
+                var tuple = _packetsQueue.Take();
+                OnPacket?.Invoke(tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4);//context, module, command, packet
+
+            }
         }
 
 
