@@ -44,6 +44,16 @@ namespace TcpConnectors
             byte[] output = ConnectorsUtils.SerializePacket(module, command, packet);
             TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
         }
+        public void SendRequestMultiResponses(int module, int command, object packet)
+        {
+            if (IsConnected == false)
+            {
+                throw new InvalidOperationException("Connector not connected");
+            }
+            var requestId = _nextRequestId += 2;
+            byte[] output = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId);
+            TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
+        }
 
 
         public object SendRequest(int module, int command, object packet)
@@ -53,7 +63,7 @@ namespace TcpConnectors
                 throw new InvalidOperationException("Connector not connected");
             }
             var requestId = _nextRequestId += 2;
-            byte[] output = ConnectorsUtils.SerializeRequestPacket(module, command, packet, requestId);
+            byte[] output = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, module, command, packet, requestId);
             var res = _reqResHandler.Request(requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); });
             return res;
         }
@@ -65,7 +75,7 @@ namespace TcpConnectors
                 throw new InvalidOperationException("Connector not connected");
             }
             var requestId = _nextRequestIdAsync += 2;
-            byte[] output = ConnectorsUtils.SerializeRequestPacket(module, command, packet, requestId);
+            byte[] output = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, module, command, packet, requestId);
             var res = await _reqResAsyncHandler.Request(requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); });
             return res;
         }

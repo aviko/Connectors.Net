@@ -33,40 +33,46 @@ namespace TcpConnectors
                     object reqPacket = null;
                     int requestId = 0;
                     string exceptionMsg = null;
-                    byte module = 0;
-                    byte command = 0;
+                    byte module = 0, command = 0, requestType = 0;
                     try
                     {
-                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestId, out module, out command);
+                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestType, out requestId, out module, out command);
                     }
                     catch (Exception ex) { exceptionMsg = ex.Message; }
 
 
-                    if (buf[1] == 0 && requestId == 0) //keep alive
+                    if (requestType == ConnectorsUtils.RequestTypeKeepAlive) //keep alive
                     {
                         _lastRecievedLeepAliveTimestamp = (long)reqPacket;
-                        //Console.WriteLine($"keep alive: {reqPacket}");
                         _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnKeepAlive, reqPacket.ToString());
                         return;
                     }
 
-
-                    if (exceptionMsg != null)
+                    if (requestType == ConnectorsUtils.RequestTypeRequestResponse)
                     {
-                        var resBuf = ConnectorsUtils.SerializeRequestPacket(0, 1, exceptionMsg, requestId);
-                        TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
-                    }
-                    else
-                    {
-                        var rrData = new RequestResponseData()
+                        if (exceptionMsg != null)
                         {
-                            RequestId = requestId,
-                            Module = module,
-                            Command = command,
-                            Packet = reqPacket,
-                        };
-                        new Task(() => HandleRequestResponse(rrData)).Start();
+                            var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, exceptionMsg, requestId);
+                            TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+                        }
+                        else
+                        {
+                            var rrData = new RequestResponseData()
+                            {
+                                RequestId = requestId,
+                                Module = module,
+                                Command = command,
+                                Packet = reqPacket,
+                            };
+                            new Task(() => HandleRequestResponse(rrData)).Start();
+                        }
                     }
+
+                    if (requestType == ConnectorsUtils.RequestTypeRequestMultiResponses)
+                    {
+                    }
+
+
                 }
                 else //packet
                 {
@@ -85,12 +91,12 @@ namespace TcpConnectors
             try
             {
                 var res = _serverConnectors.TriggerOnRequestPacket(this, rrData.Module, rrData.Command, rrData.Packet);
-                var resBuf = ConnectorsUtils.SerializeRequestPacket(rrData.Module, rrData.Command, res, rrData.RequestId);
+                var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, rrData.Module, rrData.Command, res, rrData.RequestId);
                 TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
             }
             catch (Exception ex)
             {
-                var resBuf = ConnectorsUtils.SerializeRequestPacket(0, 1, ex.Message, rrData.RequestId);
+                var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, ex.Message, rrData.RequestId);
                 TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
             }
         }

@@ -16,20 +16,40 @@ namespace TcpConnectors
             return Serialize(2, module, command, packet);
         }
 
-        internal static object DeserializeRequestPacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out int requestId, out byte module, out byte command)
+        internal static byte[] SerializeRequestMultiResponsesPacket(int module, int command, object packet)
         {
-            requestId = BitConverter.ToInt32(buf, 1);
-
-            return Deserialize(7, buf, packetsMap, out module, out command);
+            return Serialize(2, module, command, packet);
         }
 
-        internal static byte[] SerializeRequestPacket(int module, int command, object packet, int requestId)
+        //=============================================================================
+        //0 - always 0
+        //1 - requestType: 0:keep alive, 1: request response, 2: request multi responses
+        //2-5 - requestId
+        //6 - module
+        //7 - command
+
+        internal const byte RequestTypeKeepAlive = 1;
+        internal const byte RequestTypeRequestResponse = 2;
+        internal const byte RequestTypeRequestMultiResponses = 3;
+
+        internal static object DeserializeRequestPacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out byte requestType, out int requestId, out byte module, out byte command)
         {
-            var buf = Serialize(7, module, command, packet);
+            requestType = buf[1];
+            requestId = BitConverter.ToInt32(buf, 2);
+
+            return Deserialize(8, buf, packetsMap, out module, out command);
+        }
+
+
+        internal static byte[] SerializeRequestPacket(byte requestType, int module, int command, object packet, int requestId)
+        {
+            var buf = Serialize(8, module, command, packet);
+            buf[1] = requestType;
             var requestIdArr = BitConverter.GetBytes(requestId);
-            Array.Copy(requestIdArr, 0, buf, 1, 4);
+            Array.Copy(requestIdArr, 0, buf, 2, 4);
             return buf;
         }
+        //=============================================================================
 
         private static object Deserialize(int offset, byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out byte module, out byte command)
         {

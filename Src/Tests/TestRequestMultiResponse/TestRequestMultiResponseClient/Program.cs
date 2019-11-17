@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using TcpConnectors;
+using TestRequestMultiResponseCommon;
 
-namespace TestSimpleEchoClient
+namespace TestRequestMultiResponseClient
 {
     class Program
     {
@@ -16,7 +16,7 @@ namespace TestSimpleEchoClient
 
             _clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
-                PacketsMap = new Dictionary<Tuple<int, int>, Type>() { { new Tuple<int, int>(1, 1), typeof(string) }, },
+                PacketsMap = new Dictionary<Tuple<int, int>, Type>() { { new Tuple<int, int>(1, 1), typeof(GetListResponsePacket) }, },
                 ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1112) }
             });
 
@@ -24,7 +24,7 @@ namespace TestSimpleEchoClient
             _clientConnector.OnConnect += ClientConnector_OnConnect;
             _clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
             _clientConnector.OnException += ClientConnector_OnException;
-            _clientConnector.OnDebugLog += ClientConnector_OnDebugLog; 
+            _clientConnector.OnDebugLog += ClientConnector_OnDebugLog;
 
             _clientConnector.Connect();
 
@@ -34,7 +34,12 @@ namespace TestSimpleEchoClient
                 {
                     Console.WriteLine("Enter Input");
                     var inputLine = Console.ReadLine();
-                    _clientConnector.Send(1, 1, inputLine);
+                    var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
+
+                    //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
+                    Console.WriteLine($"response packet count:{resPacket.List.Count}");
+
+
                 }
                 catch (Exception ex)
                 {

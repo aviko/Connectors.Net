@@ -19,6 +19,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimpleEchoServer", "Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimpleEchoClient", "Tests\TestSimpleEcho\TestSimpleEchoClient\TestSimpleEchoClient.csproj", "{827BC011-0534-4D86-AEA1-A5BD9EFC323C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestRequestMultiResponse", "TestRequestMultiResponse", "{B51F1A37-AF6D-4D59-B5D6-122AB5685D32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRequestMultiResponseClient", "Tests\TestRequestMultiResponse\TestRequestMultiResponseClient\TestRequestMultiResponseClient.csproj", "{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRequestMultiResponseServer", "Tests\TestRequestMultiResponse\TestRequestMultiResponseServer\TestRequestMultiResponseServer.csproj", "{CD250956-38C2-4B06-8000-95E923525D4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRequestMultiResponseCommon", "Tests\TestRequestMultiResponse\TestRequestMultiResponseCommon\TestRequestMultiResponseCommon.csproj", "{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +57,18 @@ Global
 		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD250956-38C2-4B06-8000-95E923525D4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD250956-38C2-4B06-8000-95E923525D4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD250956-38C2-4B06-8000-95E923525D4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD250956-38C2-4B06-8000-95E923525D4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +77,10 @@ Global
 		{09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3} = {A42F77CF-1010-424C-8A94-B5DD437CD054}
 		{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39} = {09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3}
 		{827BC011-0534-4D86-AEA1-A5BD9EFC323C} = {09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3}
+		{B51F1A37-AF6D-4D59-B5D6-122AB5685D32} = {A42F77CF-1010-424C-8A94-B5DD437CD054}
+		{88AB4823-F7A7-4A7F-AF32-52F5B22B7737} = {B51F1A37-AF6D-4D59-B5D6-122AB5685D32}
+		{CD250956-38C2-4B06-8000-95E923525D4D} = {B51F1A37-AF6D-4D59-B5D6-122AB5685D32}
+		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856} = {B51F1A37-AF6D-4D59-B5D6-122AB5685D32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6649EDD4-35B8-44A9-9FF1-97117BBBE39E}

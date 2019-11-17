@@ -98,7 +98,7 @@ namespace TcpConnectors
                 }
 
                 //send new keep alive
-                var keepaliveBuf = ConnectorsUtils.SerializeRequestPacket(0, 0, _keepAliveTimestamp, 0);
+                var keepaliveBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeKeepAlive, 0, 0, _keepAliveTimestamp, 0);
                 TcpSocketsUtils.Send(connector.Socket, keepaliveBuf, connector.OnSend, connector.OnExcp);
             }
         }

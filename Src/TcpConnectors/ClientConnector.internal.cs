@@ -40,14 +40,14 @@ namespace TcpConnectors
                 {
                     object reqPacket = null;
                     int requestId = 0;
-                    byte module = 0, command = 0;
+                    byte module = 0, command = 0, requestType = 0;
                     try
                     {
-                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestId, out module, out command);
+                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestType, out requestId, out module, out command);
                     }
                     catch (Exception ex) { OnDebugLog?.Invoke(DebugLogType.OnRecvException, ex.ToString()); }
 
-                    if (command == 0 && requestId == 0) //keep alive
+                    if (requestType == ConnectorsUtils.RequestTypeKeepAlive) //keep alive
                     {
                         _lastKeepAliveTime = DateTime.UtcNow;
                         TcpSocketsUtils.Send(_socket, buf, OnSend, OnExcp);
@@ -55,28 +55,36 @@ namespace TcpConnectors
                         return;
                     }
 
-                    if (requestId % 2 == 1)
+                    if (requestType == ConnectorsUtils.RequestTypeRequestResponse)
                     {
-                        if (module == 0 && command == 1)
+                        if (requestId % 2 == 1)
                         {
-                            _reqResHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                            if (module == 0 && command == 1)
+                            {
+                                _reqResHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                            }
+                            else
+                            {
+                                _reqResHandler.HandleResponse(requestId, reqPacket);
+                            }
                         }
                         else
                         {
-                            _reqResHandler.HandleResponse(requestId, reqPacket);
+                            if (module == 0 && command == 1)
+                            {
+                                _reqResAsyncHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                            }
+                            else
+                            {
+                                _reqResAsyncHandler.HandleResponse(requestId, reqPacket);
+                            }
                         }
                     }
-                    else
+
+                    if (requestType == ConnectorsUtils.RequestTypeRequestMultiResponses)
                     {
-                        if (module == 0 && command == 1)
-                        {
-                            _reqResAsyncHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
-                        }
-                        else
-                        {
-                            _reqResAsyncHandler.HandleResponse(requestId, reqPacket);
-                        }
                     }
+
                 }
                 else //packet
                 {
