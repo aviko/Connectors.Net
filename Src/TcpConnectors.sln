@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2016
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpConnectors", "TcpConnectors\TcpConnectors.csproj", "{7018EDF9-95A9-4BC2-8F18-ECB9EAA69DF7}"
 EndProject
@@ -9,7 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpConnectors.TestServer", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpConnectors.TestClient", "TcpConnectors.TestClient\TcpConnectors.TestClient.csproj", "{0F0AB292-032B-442C-B694-6DB8AE011A6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpConnectors.TestCommon", "TcpConnectors.TestCommon\TcpConnectors.TestCommon.csproj", "{8ABD7647-A02B-4848-BB30-8034896C3EAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpConnectors.TestCommon", "TcpConnectors.TestCommon\TcpConnectors.TestCommon.csproj", "{8ABD7647-A02B-4848-BB30-8034896C3EAA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A42F77CF-1010-424C-8A94-B5DD437CD054}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestSimpleEcho", "TestSimpleEcho", "{09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimpleEchoServer", "Tests\TestSimpleEcho\TestSimpleEchoServer\TestSimpleEchoServer.csproj", "{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimpleEchoClient", "Tests\TestSimpleEcho\TestSimpleEchoClient\TestSimpleEchoClient.csproj", "{827BC011-0534-4D86-AEA1-A5BD9EFC323C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +41,22 @@ Global
 		{8ABD7647-A02B-4848-BB30-8034896C3EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ABD7647-A02B-4848-BB30-8034896C3EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8ABD7647-A02B-4848-BB30-8034896C3EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{827BC011-0534-4D86-AEA1-A5BD9EFC323C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3} = {A42F77CF-1010-424C-8A94-B5DD437CD054}
+		{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39} = {09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3}
+		{827BC011-0534-4D86-AEA1-A5BD9EFC323C} = {09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6649EDD4-35B8-44A9-9FF1-97117BBBE39E}
