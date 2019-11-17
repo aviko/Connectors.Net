@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using TcpConnectors.TestCommon;
@@ -27,7 +28,7 @@ namespace TcpConnectors.TestClient
 
             _clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
-                PacketsMap = PacketsUtils.GetServer2ClientMapping(),
+                PacketsMap = SendPacketsUtils.GetServer2ClientMapping(Assembly.GetAssembly(typeof(LoginResponsePacket))),
                 ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1111) }
             });
 

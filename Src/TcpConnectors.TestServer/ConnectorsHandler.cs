@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using TcpConnectors.TestCommon;
 
@@ -15,7 +16,7 @@ namespace TcpConnectors.TestServer
         {
             _serverConnectors = new ServerConnectors(new ServerConnectorsSettings()
             {
-                PacketsMap = PacketsUtils.GetClient2ServerMapping(),
+                PacketsMap = SendPacketsUtils.GetClient2ServerMapping(Assembly.GetAssembly(typeof(LoginRequestPacket))),
                 ListenPort = 1111,
             });
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;

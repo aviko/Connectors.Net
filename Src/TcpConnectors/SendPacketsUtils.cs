@@ -4,24 +4,30 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace TcpConnectors.TestCommon
+namespace TcpConnectors
 {
-    public static class PacketsUtils
+    public static class SendPacketsUtils
     {
-
-        public static Dictionary<Tuple<int, int>, Type> GetClient2ServerMapping()
+        public interface IClient2ServerPacket
         {
-            return GetMapping(typeof(IClient2ServerPacket));
         }
 
-        public static Dictionary<Tuple<int, int>, Type> GetServer2ClientMapping()
+        public interface IServer2ClientPacket
         {
-            return GetMapping(typeof(IServer2ClientPacket));
+        }
+        public static Dictionary<Tuple<int, int>, Type> GetClient2ServerMapping(Assembly assembly)
+        {
+            return GetMapping(assembly, typeof(IClient2ServerPacket));
         }
 
-        private static Dictionary<Tuple<int, int>, Type> GetMapping(Type interfaceType)
+        public static Dictionary<Tuple<int, int>, Type> GetServer2ClientMapping(Assembly assembly)
         {
-            var lookupTypes = Assembly.GetAssembly(interfaceType).GetTypes()
+            return GetMapping(assembly, typeof(IServer2ClientPacket));
+        }
+
+        private static Dictionary<Tuple<int, int>, Type> GetMapping(Assembly assembly, Type interfaceType)
+        {
+            var lookupTypes = assembly.GetTypes()
                 .Where(t => interfaceType.IsAssignableFrom(t) && !t.IsInterface)
                 .ToList();
 

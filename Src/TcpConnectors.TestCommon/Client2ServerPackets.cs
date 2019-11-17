@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+
 namespace TcpConnectors.TestCommon
 {
-    public interface IClient2ServerPacket
-    {
-    }
+    //public interface IClient2ServerPacket
+    //{
+    //}
 
 
     //----------------------------------------------------
 
-    public class LoginRequestPacket : IClient2ServerPacket
+    public class LoginRequestPacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  1;
         public const byte COMMAND =  1;
@@ -24,7 +25,7 @@ namespace TcpConnectors.TestCommon
 
     //----------------------------------------------------
     //Groups
-    public class CreateGroupRequestPacket : IClient2ServerPacket
+    public class CreateGroupRequestPacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  2;
         public const byte COMMAND =  1;
@@ -32,7 +33,7 @@ namespace TcpConnectors.TestCommon
         public string GroupName { get; set; }
     }
 
-    public class JoinGroupRequestPacket : IClient2ServerPacket
+    public class JoinGroupRequestPacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  2;
         public const byte COMMAND =  2;
@@ -40,7 +41,7 @@ namespace TcpConnectors.TestCommon
         public string GroupName { get; set; }
     }
 
-    public class LeaveGroupRequestPacket : IClient2ServerPacket
+    public class LeaveGroupRequestPacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  2;
         public const byte COMMAND =  3;
@@ -48,13 +49,13 @@ namespace TcpConnectors.TestCommon
         public string GroupName { get; set; }
     }
 
-    public class GetGroupsRequestPacket : IClient2ServerPacket
+    public class GetGroupsRequestPacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  2;
         public const byte COMMAND =  4;
     }
 
-    public class GetGroupInfoRequestPacket : IClient2ServerPacket
+    public class GetGroupInfoRequestPacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  2;
         public const byte COMMAND =  5;
@@ -64,7 +65,7 @@ namespace TcpConnectors.TestCommon
 
     //----------------------------------------------------
     //messages
-    public class SendGroupMessagePacket : IClient2ServerPacket
+    public class SendGroupMessagePacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  3;
         public const byte COMMAND =  1;
@@ -73,7 +74,7 @@ namespace TcpConnectors.TestCommon
         public string Message { get; set; }
     }
 
-    public class SendPrivateMessagePacket : IClient2ServerPacket
+    public class SendPrivateMessagePacket : SendPacketsUtils.IClient2ServerPacket
     {
         public const byte MODULE =  3;
         public const byte COMMAND =  2;

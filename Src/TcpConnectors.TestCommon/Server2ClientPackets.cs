@@ -6,13 +6,13 @@ using System.Text;
 
 namespace TcpConnectors.TestCommon
 {
-    public interface IServer2ClientPacket
-    {
-    }
+    //public interface IServer2ClientPacket
+    //{
+    //}
 
     //----------------------------------------------------
 
-    public class LoginResponsePacket : IServer2ClientPacket
+    public class LoginResponsePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = 1;
         public const byte COMMAND = 1;
@@ -25,7 +25,7 @@ namespace TcpConnectors.TestCommon
     //Groups
 
 
-    public class CreateGroupResponsePacket : IServer2ClientPacket
+    public class CreateGroupResponsePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = CreateGroupRequestPacket.MODULE;
         public const byte COMMAND = CreateGroupRequestPacket.COMMAND;
@@ -34,7 +34,7 @@ namespace TcpConnectors.TestCommon
         public string Message { get; set; }
     }
 
-    public class JoinGroupResponsePacket : IServer2ClientPacket
+    public class JoinGroupResponsePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = JoinGroupRequestPacket.MODULE;
         public const byte COMMAND = JoinGroupRequestPacket.COMMAND;
@@ -43,7 +43,7 @@ namespace TcpConnectors.TestCommon
         public string Message { get; set; }
     }
 
-    public class LeaveGroupResponsePacket : IServer2ClientPacket
+    public class LeaveGroupResponsePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = 2;
         public const byte COMMAND = 3;
@@ -52,7 +52,7 @@ namespace TcpConnectors.TestCommon
         public string Message { get; set; }
     }
 
-    public class GetGroupsResponsePacket : IServer2ClientPacket
+    public class GetGroupsResponsePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = GetGroupsRequestPacket.MODULE;
         public const byte COMMAND = GetGroupsRequestPacket.COMMAND;
@@ -60,7 +60,7 @@ namespace TcpConnectors.TestCommon
         public List<string> GroupNames { get; set; }
     }
 
-    public class GetGroupInfoResponsePacket : IServer2ClientPacket
+    public class GetGroupInfoResponsePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = 2;
         public const byte COMMAND = 5;
@@ -75,7 +75,7 @@ namespace TcpConnectors.TestCommon
 
     //----------------------------------------------------
     //messages
-    public class OnMessagePacket : IServer2ClientPacket
+    public class OnMessagePacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = 3;
         public const byte COMMAND = 1;
@@ -86,7 +86,7 @@ namespace TcpConnectors.TestCommon
     }
 
 
-    public class OnNotificationPacket : IServer2ClientPacket
+    public class OnNotificationPacket : SendPacketsUtils.IServer2ClientPacket
     {
         public const byte MODULE = 3;
         public const byte COMMAND = 2;
