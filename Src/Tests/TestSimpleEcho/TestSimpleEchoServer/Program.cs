@@ -23,7 +23,7 @@ namespace TestSimpleEchoServer
             //_serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket; 
             _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect;
             _serverConnectors.OnException += ServerConnectors_OnException;
-            _serverConnectors.OnDebugLog += ServerConnectors_OnDebugLog; ;
+            _serverConnectors.OnDebugLog += ServerConnectors_OnDebugLog;
 
             _serverConnectors.Listen();
         }

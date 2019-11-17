@@ -45,7 +45,8 @@ namespace TcpConnectors
                     if (buf[1] == 0 && requestId == 0) //keep alive
                     {
                         _lastRecievedLeepAliveTimestamp = (long)reqPacket;
-                        Console.WriteLine($"keep alive: {reqPacket}");
+                        //Console.WriteLine($"keep alive: {reqPacket}");
+                        _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnKeepAlive, reqPacket.ToString());
                         return;
                     }
 

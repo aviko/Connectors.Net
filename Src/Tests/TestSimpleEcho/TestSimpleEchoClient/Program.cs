@@ -24,7 +24,7 @@ namespace TestSimpleEchoClient
             _clientConnector.OnConnect += ClientConnector_OnConnect;
             _clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
             _clientConnector.OnException += ClientConnector_OnException;
-            _clientConnector.OnDebugLog += ClientConnector_OnDebugLog; ;
+            //_clientConnector.OnDebugLog += ClientConnector_OnDebugLog; 
 
             _clientConnector.Connect();
 

@@ -51,7 +51,7 @@ namespace TcpConnectors
                     {
                         _lastKeepAliveTime = DateTime.UtcNow;
                         TcpSocketsUtils.Send(_socket, buf, OnSend, OnExcp);
-                        Console.WriteLine($"keep alive: {reqPacket}");
+                        OnDebugLog?.Invoke(DebugLogType.OnKeepAlive, reqPacket.ToString());
                         return;
                     }
 
