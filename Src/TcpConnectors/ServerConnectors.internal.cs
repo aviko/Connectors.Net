@@ -64,6 +64,7 @@ namespace TcpConnectors
                         newSocket,
                         newContext.OnRecv,
                         newContext.OnExcp,
+                        newContext.OnRecvProgress,
                         _settings.ReceiveBufferSize == 0 ? TcpSocketsUtils.ms_DefualtReceiveBufferSize : _settings.ReceiveBufferSize,
                         true);
                 }
@@ -91,7 +92,7 @@ namespace TcpConnectors
 
                 if (needToDisconnect)
                 {
-                    Console.WriteLine("needToDisconnect");
+                    OnDebugLog?.Invoke(connector, DebugLogType.OnKeepAlive, "Need to Disconnect");
                     try { connector.Socket.Close(); } catch { }
                     connector.OnExcp(null);
                     continue;
@@ -131,7 +132,7 @@ namespace TcpConnectors
 
         private void PacketsQueueWorker()
         {
-            while (!_isDisposed) 
+            while (!_isDisposed)
             {
                 var tuple = _packetsQueue.Take();
                 OnPacket?.Invoke(tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4);//context, module, command, packet

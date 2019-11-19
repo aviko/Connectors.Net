@@ -86,6 +86,11 @@ namespace TcpConnectors
             }
         }
 
+        internal void OnRecvProgress(int bytesRecived, int totalPacketLen)
+        {
+            Console.WriteLine($"OnRecvProgress bytesRecived:{bytesRecived}, totalPacketLen:{totalPacketLen}");
+        }
+
         private void HandleRequestResponse(RequestResponseData rrData)
         {
             try

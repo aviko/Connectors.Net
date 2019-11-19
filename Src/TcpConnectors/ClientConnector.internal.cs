@@ -14,6 +14,7 @@ namespace TcpConnectors
         private int _nextRequestId = 1; //odd numbers
         private int _nextRequestIdAsync = 2; //even numbers
         private DateTime _lastKeepAliveTime = DateTime.UtcNow;
+        private DateTime _lastRecvProgressTime = DateTime.UtcNow;
         private System.Timers.Timer _reconnectTimer = null;
         private bool _isDisposed = false;
 
@@ -98,6 +99,12 @@ namespace TcpConnectors
             }
         }
 
+        internal void OnRecvProgress(int bytesRecived, int totalPacketLen)
+        {
+            Console.WriteLine($"OnRecvProgress bytesRecived:{bytesRecived}, totalPacketLen:{totalPacketLen}");
+            _lastRecvProgressTime = DateTime.UtcNow;
+        }
+
         private void OnExcp(Exception ex)
         {
             if (_socket != null && _socket.Connected == false)
@@ -112,6 +119,8 @@ namespace TcpConnectors
 
         private void DisconnectInternal()
         {
+            _reqResHandler.HandleExceptionResponseForAll(new Exception("Disconnect"));
+
             if (IsConnected)
             {
                 IsConnected = false;
@@ -167,6 +176,7 @@ namespace TcpConnectors
                         _socket,
                         OnRecv,
                         OnExcp,
+                        OnRecvProgress,
                         _settings.ReceiveBufferSize == 0 ? TcpSocketsUtils.ms_DefualtReceiveBufferSize : _settings.ReceiveBufferSize,
                         true);
                 }
@@ -198,17 +208,25 @@ namespace TcpConnectors
 
             if ((DateTime.UtcNow - _lastKeepAliveTime).TotalSeconds > _settings.KeepAliveDisconnectInterval)
             {
-                if (_socket != null && IsConnected)
+                if ((DateTime.UtcNow - _lastRecvProgressTime).TotalSeconds > 10)
                 {
-                    IsConnected = false;
-                    try { _socket.Dispose(); } catch { }
-                    _socket = null;
-                    OnDisconnect?.Invoke();
+                    if (_socket != null && IsConnected)
+                    {
+                        OnDebugLog?.Invoke(DebugLogType.OnKeepAlive, "Need to Disconnect");
+                        IsConnected = false;
+                        try { _socket.Dispose(); } catch { }
+                        _socket = null;
+                        OnDisconnect?.Invoke();
 
+                    }
+                }
+                else
+                {
+                    OnDebugLog?.Invoke(DebugLogType.OnKeepAlive, "Need to Disconnect, but RecvProgressTime is in less than 10 seconds");
                 }
             }
 
-            if (_socket == null || _socket.Connected == false) //todo: chekc also keep alive status
+            if (_socket == null || _socket.Connected == false) //todo: check also keep alive status
             {
                 DisconnectInternal();
                 if (_settings.AutoReconnect)

@@ -9,7 +9,8 @@ namespace TcpConnectors
     public static class TcpSocketsUtils
     {
 
-        public const int ms_DefualtReceiveBufferSize = 1000000;
+        //public const int ms_DefualtReceiveBufferSize = 5_000_000;
+        public const int ms_DefualtReceiveBufferSize = 1_000_000;
 
         //----------- Send Section ---------------
         public delegate void OnSendDlgt();
@@ -101,6 +102,7 @@ namespace TcpConnectors
                 // Complete sending the data to the remote device.
                 int bytesSent = state.m_socket.EndSend(ar);
                 state.m_BytesSentSoFar += bytesSent;
+                //Console.WriteLine($"SendCallback m_BytesSentSoFar:{state.m_BytesSentSoFar} Length:{state.m_buf.Length}");
                 if (state.m_BytesSentSoFar < state.m_buf.Length)
                 {
                     //keep sending
@@ -139,6 +141,7 @@ namespace TcpConnectors
         /// </summary>
         /// <param name="buf"></param>
         public delegate void OnRecvDlgt(byte[] buf);
+        public delegate void OnRecvProgressDlgt(int bytesRecived, int totalPacketLen);
         public delegate void OnExcpDlgt(Exception e);
 
         private const int MaxNumOfBytesInLengthField = 5;
@@ -147,13 +150,14 @@ namespace TcpConnectors
         {
             public Socket m_Socket;
             public OnRecvDlgt m_OnRecv;
+            public OnRecvProgressDlgt m_OnRecvProgress;
             public OnExcpDlgt m_OnExcp;
             public byte[] m_buf;
             public byte[] m_PrevLeftoverBuf;
             public bool m_recvLoop;
         }
 
-        public static void Recv(Socket socket, OnRecvDlgt onRecv, OnExcpDlgt onExcp, int reciveBufferSize, bool recvLoop)
+        public static void Recv(Socket socket, OnRecvDlgt onRecv, OnExcpDlgt onExcp, OnRecvProgressDlgt onRecvProgress, int reciveBufferSize, bool recvLoop)
         {
             try
             {
@@ -161,6 +165,7 @@ namespace TcpConnectors
                 RecvState state = new RecvState();
                 state.m_Socket = socket;
                 state.m_OnRecv = onRecv;
+                state.m_OnRecvProgress = onRecvProgress;
                 state.m_OnExcp = onExcp;
                 state.m_recvLoop = recvLoop;
                 state.m_buf = (recvLoop ? new byte[reciveBufferSize] : new byte[1]);
@@ -287,8 +292,9 @@ namespace TcpConnectors
                     {
                         state.m_buf = new byte[expectedTotalPacketLen - packetBytesRecived];
                     }
-
+                    state.m_OnRecvProgress?.Invoke(packetBytesRecived, expectedTotalPacketLen);
                     StartRecvPacket(state);
+
                     return;
                 }
 
