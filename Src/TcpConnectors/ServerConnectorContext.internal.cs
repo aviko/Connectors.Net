@@ -14,7 +14,8 @@ namespace TcpConnectors
         }
 
         private ServerConnectors _serverConnectors;
-        internal long _lastRecievedLeepAliveTimestamp;
+        internal long _lastRecievedKeepAliveTimestamp;
+        internal DateTime _lastRecievedInProgressTime;
         internal DateTime _connectedTime = default(DateTime);
 
         internal ServerConnectorContext(int id, ServerConnectors serverConnectors)
@@ -43,8 +44,15 @@ namespace TcpConnectors
 
                     if (requestType == ConnectorsUtils.RequestTypeKeepAlive) //keep alive
                     {
-                        _lastRecievedLeepAliveTimestamp = (long)reqPacket;
+                        _lastRecievedKeepAliveTimestamp = (long)reqPacket;
                         _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnKeepAlive, reqPacket.ToString());
+                        return;
+                    }
+
+                    if (requestType == ConnectorsUtils.RequestTypeRecvInProgress) //client RecvInProgress (keep alive should be less sensitive)
+                    {
+                        _lastRecievedInProgressTime = DateTime.UtcNow;
+                        _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnKeepAlive, "Recv in progress");
                         return;
                     }
 

@@ -15,6 +15,7 @@ namespace TcpConnectors
         private int _nextRequestIdAsync = 2; //even numbers
         private DateTime _lastKeepAliveTime = DateTime.UtcNow;
         private DateTime _lastRecvProgressTime = DateTime.UtcNow;
+        private DateTime _lastRecvTime = DateTime.UtcNow;
         private System.Timers.Timer _reconnectTimer = null;
         private bool _isDisposed = false;
 
@@ -36,6 +37,8 @@ namespace TcpConnectors
         {
             try
             {
+                _lastRecvTime = DateTime.UtcNow;
+
                 // module, command
                 if (buf[0] == 0) //request response packet
                 {
@@ -206,9 +209,17 @@ namespace TcpConnectors
         {
             if (_isDisposed) return;
 
+            var isRecvActive = (DateTime.UtcNow - _lastRecvProgressTime).TotalSeconds < 10 || (DateTime.UtcNow - _lastRecvTime).TotalSeconds < 10;
+            if (isRecvActive)
+            {
+                var recvInProgressBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRecvInProgress, 0, 0, 0, 0);
+                TcpSocketsUtils.Send(_socket, recvInProgressBuf, OnSend, OnExcp);
+            }
+
+
             if ((DateTime.UtcNow - _lastKeepAliveTime).TotalSeconds > _settings.KeepAliveDisconnectInterval)
             {
-                if ((DateTime.UtcNow - _lastRecvProgressTime).TotalSeconds > 10)
+                if (isRecvActive == false)
                 {
                     if (_socket != null && IsConnected)
                     {
@@ -222,7 +233,7 @@ namespace TcpConnectors
                 }
                 else
                 {
-                    OnDebugLog?.Invoke(DebugLogType.OnKeepAlive, "Need to Disconnect, but RecvProgressTime is in less than 10 seconds");
+                    OnDebugLog?.Invoke(DebugLogType.OnKeepAlive, "Need to Disconnect, but RecvProgressTime/RecvTime is in less than 10 seconds");
                 }
             }
 

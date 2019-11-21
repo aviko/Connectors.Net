@@ -31,6 +31,7 @@ namespace TcpConnectors
         internal const byte RequestTypeKeepAlive = 1;
         internal const byte RequestTypeRequestResponse = 2;
         internal const byte RequestTypeRequestMultiResponses = 3;
+        internal const byte RequestTypeRecvInProgress = 4;
 
         internal static object DeserializeRequestPacket(byte[] buf, Dictionary<Tuple<int, int>, Type> packetsMap, out byte requestType, out int requestId, out byte module, out byte command)
         {

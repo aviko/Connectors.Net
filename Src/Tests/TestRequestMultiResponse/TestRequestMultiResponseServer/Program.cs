@@ -33,7 +33,7 @@ namespace TestRequestMultiResponseServer
         {
             var list = new List<string>();
 
-            for (int i=0;i<25_000_000; i++)
+            for (int i=0;i<35_000_000; i++)
             {
                 list.Add(i.ToString());
                 if (i % 1000000 == 0) Console.WriteLine(i);
