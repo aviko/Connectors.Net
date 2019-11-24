@@ -21,7 +21,7 @@ namespace TestRequestMultiResponseServer
             });
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
             _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
-            _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket; 
+            _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket;
             _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect;
             _serverConnectors.OnException += ServerConnectors_OnException;
             _serverConnectors.OnDebugLog += ServerConnectors_OnDebugLog;
@@ -33,7 +33,7 @@ namespace TestRequestMultiResponseServer
         {
             var list = new List<string>();
 
-            for (int i=0;i<35_000_000; i++)
+            for (int i = 0; i < 35_000_000; i++)
             {
                 list.Add(i.ToString());
                 if (i % 1000000 == 0) Console.WriteLine(i);

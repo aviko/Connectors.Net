@@ -32,13 +32,30 @@ namespace TestRequestMultiResponseClient
             {
                 try
                 {
-                    Console.WriteLine("Enter Input");
+                    Console.WriteLine("Enter Input (r-request, m-request multi response)");
                     var inputLine = Console.ReadLine();
-                    var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
 
-                    //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
-                    Console.WriteLine($"response packet count:{resPacket.List.Count}");
+                    if (inputLine == "r")
+                    {
+                        Console.WriteLine("Perform Request (large single response)");
+                        var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
+                        //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
+                        Console.WriteLine($"response packet count:{resPacket.List.Count}");
+                    }
+                    else if (inputLine == "m")
+                    {
+                        Console.WriteLine("Perform Request - multi responses");
 
+                        _clientConnector.SendRequestMultiResponses(1, 2, new GetListRequestMultiResponsesPacket());
+
+                        //var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
+                        //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
+                        //Console.WriteLine($"response packet count:{resPacket.List.Count}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("input incorrect.");
+                    }
 
                 }
                 catch (Exception ex)

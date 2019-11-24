@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BinaryConverter.Net" Version="0.1.4" />
+    <PackageReference Include="BinaryConverter.Net" Version="0.1.5" />
   </ItemGroup>
 
 </Project>

@@ -17,4 +17,9 @@ namespace TestRequestMultiResponseCommon
 
         public List<string> List { get; set; }
     }
+    public class GetListRequestMultiResponsesPacket
+    {
+        public const byte MODULE = 1;
+        public const byte COMMAND = 2;
+    }
 }
