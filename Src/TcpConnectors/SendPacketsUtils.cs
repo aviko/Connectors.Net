@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TcpConnectors
 {
@@ -60,6 +61,25 @@ namespace TcpConnectors
             consts.TryGetValue("COMMAND", out command);
 
 
+        }
+
+
+        public static object SendRequest(this ClientConnector clientConnector, IClient2ServerPacket client2ServerPacket)
+        {
+            GetModuleCommandValues(client2ServerPacket.GetType(), out var module, out var command);
+            return clientConnector.SendRequest(module, command, client2ServerPacket);
+        }
+
+        public static async Task<object> SendRequestAsync(this ClientConnector clientConnector, IClient2ServerPacket client2ServerPacket)
+        {
+            GetModuleCommandValues(client2ServerPacket.GetType(), out var module, out var command);
+            return await clientConnector.SendRequestAsync(module, command, client2ServerPacket);
+        }
+
+        public static void Send(this ServerConnectors serverConnectors, Func<ServerConnectorContext, bool> filter, IServer2ClientPacket server2ClientPacket)
+        {
+            GetModuleCommandValues(server2ClientPacket.GetType(), out var module, out var command);
+            serverConnectors.Send(filter, module, command, server2ClientPacket);
         }
     }
 }
