@@ -96,6 +96,7 @@ namespace TcpConnectors
         ConnectFailed = 1,
         OnSend,
         OnRecvException,
+        OnRequestResponseException,
         OnKeepAlive,
     }
 }

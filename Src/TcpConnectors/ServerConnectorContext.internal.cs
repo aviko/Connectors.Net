@@ -109,6 +109,7 @@ namespace TcpConnectors
             }
             catch (Exception ex)
             {
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRequestResponseException, $"Module={rrData.Module} Command={rrData.Command} ex={ex.ToString()}");
                 var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, ex.Message, rrData.RequestId);
                 TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
             }
