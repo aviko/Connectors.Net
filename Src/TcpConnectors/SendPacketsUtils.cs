@@ -64,6 +64,12 @@ namespace TcpConnectors
         }
 
 
+        public static void Send(this ClientConnector clientConnector, IClient2ServerPacket client2ServerPacket)
+        {
+            GetModuleCommandValues(client2ServerPacket.GetType(), out var module, out var command);
+            clientConnector.Send(module, command, client2ServerPacket);
+        }
+
         public static object SendRequest(this ClientConnector clientConnector, IClient2ServerPacket client2ServerPacket)
         {
             GetModuleCommandValues(client2ServerPacket.GetType(), out var module, out var command);
