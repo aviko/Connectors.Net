@@ -18,6 +18,7 @@ namespace TcpConnectors
         private DateTime _lastRecvTime = DateTime.UtcNow;
         private System.Timers.Timer _reconnectTimer = null;
         private bool _isDisposed = false;
+        private ManualResetEvent _connectEvent = new ManualResetEvent(false);
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
         private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
@@ -171,6 +172,9 @@ namespace TcpConnectors
                         OnDebugLog?.Invoke(DebugLogType.ConnectFailed, $" host:{serverAddress.Item1} port:{serverAddress.Item2} ");
                     }
                 }
+                _connectEvent.Set();
+
+
                 if (_socket != null)
                 {
                     IsConnected = true;

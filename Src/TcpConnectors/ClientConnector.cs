@@ -28,10 +28,12 @@ namespace TcpConnectors
             Init(settings);
         }
 
-
-        public void Connect()
+        //wait up to [3] seconds to connect, 
+        //return true if connected
+        public bool Connect()
         {
             new Task(ConnectInternal).Start();
+            return _connectEvent.WaitOne(3000); //todo: from settings
         }
 
         public void Send(int module, int command, object packet)

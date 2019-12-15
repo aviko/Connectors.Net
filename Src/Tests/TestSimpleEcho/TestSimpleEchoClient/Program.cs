@@ -24,9 +24,12 @@ namespace TestSimpleEchoClient
             _clientConnector.OnConnect += ClientConnector_OnConnect;
             _clientConnector.OnDisconnect += ClientConnector_OnDisconnect;
             _clientConnector.OnException += ClientConnector_OnException;
-            _clientConnector.OnDebugLog += ClientConnector_OnDebugLog; 
+            _clientConnector.OnDebugLog += ClientConnector_OnDebugLog;
 
             _clientConnector.Connect();
+
+
+            try { _clientConnector.Send(1, 1, "start"); } catch (Exception ex) { Console.WriteLine("Exception on first packet:" + ex.ToString()); }
 
             while (true)
             {
