@@ -11,7 +11,7 @@ namespace TestRequestMultiResponseClient
         internal static ClientConnector _clientConnector = null;
         static void Main(string[] args)
         {
-            Console.WriteLine("TestSimpleEchoClient");
+            Console.WriteLine("TestRequestMultiResponseClient");
 
 
             _clientConnector = new ClientConnector(new ClientConnectorSettings()
@@ -32,7 +32,7 @@ namespace TestRequestMultiResponseClient
             {
                 try
                 {
-                    Console.WriteLine("Enter Input (r-request, m-request multi response)");
+                    Console.WriteLine("Enter Input (r-request, m-request multi response, x - test RequestMultiResponsesHandler)");
                     var inputLine = Console.ReadLine();
 
                     if (inputLine == "r")
@@ -46,11 +46,19 @@ namespace TestRequestMultiResponseClient
                     {
                         Console.WriteLine("Perform Request - multi responses");
 
-                        _clientConnector.SendRequestMultiResponses(1, 2, new GetListRequestMultiResponsesPacket());
+                        //_clientConnector.SendRequestMultiResponses(1, 2, new GetListRequestMultiResponsesPacket());
 
                         //var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
                         //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
                         //Console.WriteLine($"response packet count:{resPacket.List.Count}");
+                    }
+                    else if (inputLine == "x")
+                    {
+                        Console.WriteLine("TestRequestMultiResponsesHandler");
+                        var test = new TestRequestMultiResponsesHandler();
+                        test.Run();
+
+
                     }
                     else
                     {

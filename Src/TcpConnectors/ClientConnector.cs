@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using TcpConnectors.Utils;
 
 namespace TcpConnectors
 {
@@ -46,7 +47,8 @@ namespace TcpConnectors
             byte[] output = ConnectorsUtils.SerializePacket(module, command, packet);
             TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
         }
-        public void SendRequestMultiResponses(int module, int command, object packet)
+
+        public void SendRequestMultiResponses(int module, int command, object packet, Action<object, bool, Exception> responseCallback)
         {
             if (IsConnected == false)
             {
@@ -54,7 +56,9 @@ namespace TcpConnectors
             }
             var requestId = _nextRequestId += 2;
             byte[] output = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId);
-            TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
+            _reqMultiResHandler.Request(
+                requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); },
+                responseCallback);
         }
 
 

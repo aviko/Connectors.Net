@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TcpConnectors
+namespace TcpConnectors.Utils
 {
     internal static class ConnectorsUtils
     {

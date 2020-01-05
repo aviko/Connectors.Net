@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using TcpConnectors.Utils;
 
 namespace TcpConnectors
 {
@@ -22,6 +23,7 @@ namespace TcpConnectors
 
         private BlockingRequestResponseHandler<int, object> _reqResHandler = new BlockingRequestResponseHandler<int, object>();
         private AsyncRequestResponseHandler<int, object> _reqResAsyncHandler = new AsyncRequestResponseHandler<int, object>();
+        private RequestMultiResponsesHandler<int> _reqMultiResHandler = new RequestMultiResponsesHandler<int>();
 
         private BlockingCollection<Tuple<int, int, object>> _packetsQueue = new BlockingCollection<Tuple<int, int, object>>();
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace TcpConnectors
+namespace TcpConnectors.Utils
 {
     public class BlockingRequestResponseHandler<KEY, RES> : IDisposable
     {

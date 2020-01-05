@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-
 namespace TcpConnectors.TestCommon
 {
     //public interface IClient2ServerPacket

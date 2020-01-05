@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace TcpConnectors
+namespace TcpConnectors.Utils
 {
     public static class TcpSocketsUtils
     {
