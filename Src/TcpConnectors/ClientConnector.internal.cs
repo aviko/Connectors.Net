@@ -50,7 +50,8 @@ namespace TcpConnectors
                     byte module = 0, command = 0, requestType = 0;
                     try
                     {
-                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestType, out requestId, out module, out command);
+                        requestType = buf[0];
+                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestId, out module, out command);
                     }
                     catch (Exception ex) { OnDebugLog?.Invoke(DebugLogType.OnRecvException, ex.ToString()); }
 
@@ -90,6 +91,13 @@ namespace TcpConnectors
 
                     if (requestType == ConnectorsUtils.RequestTypeRequestMultiResponses)
                     {
+                        //var responseType = _reqMultiResHandler.GetRequestData(requestId) as Type;
+                        //if (responseType == null)
+                        //{
+                        //    throw new Exception("RequestTypeRequestMultiResponses - responseType is nul");
+                        //}
+
+
                     }
 
                 }

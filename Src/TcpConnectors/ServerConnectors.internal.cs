@@ -92,7 +92,7 @@ namespace TcpConnectors
                 var keepAliveDisconnectInterval = _settings.KeepAliveDisconnectInterval;
                 if ((DateTime.UtcNow - connector._lastRecievedInProgressTime).TotalSeconds < 20)
                 {
-                    keepAliveDisconnectInterval *= 6;  
+                    keepAliveDisconnectInterval *= 6;
                 }
 
                 if ((_keepAliveTimestamp - connector._lastRecievedKeepAliveTimestamp) < keepAliveDisconnectInterval) needToDisconnect = false;
@@ -120,6 +120,13 @@ namespace TcpConnectors
         internal object TriggerOnRequestPacket(ServerConnectorContext serverConnectorContext, int module, int command, object packet)
         {
             return OnRequestPacket?.Invoke(serverConnectorContext, module, command, packet);
+        }
+
+        internal void TriggerOnRequestMultiResponsesPacket(
+            ServerConnectorContext serverConnectorContext, int module, int command, int requestId, object packet,
+            Action<ServerConnectorContext, int, int, int, object, bool, int, int, Exception> callback)
+        {
+            OnRequestMultiResponses?.Invoke(serverConnectorContext, module, command, requestId, packet, callback);
         }
 
         internal void TriggerOnDisconnect(ServerConnectorContext serverConnectorContext)

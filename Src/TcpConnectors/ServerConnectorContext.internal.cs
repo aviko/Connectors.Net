@@ -38,7 +38,8 @@ namespace TcpConnectors
                     byte module = 0, command = 0, requestType = 0;
                     try
                     {
-                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestType, out requestId, out module, out command);
+                        requestType = buf[0];
+                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestId, out module, out command);
                     }
                     catch (Exception ex) { exceptionMsg = ex.Message; }
 
@@ -79,6 +80,24 @@ namespace TcpConnectors
 
                     if (requestType == ConnectorsUtils.RequestTypeRequestMultiResponses)
                     {
+                        if (exceptionMsg != null)
+                        {
+                            var resBuf = ConnectorsUtils.SerializeMultiResponsePacket(
+                                ConnectorsUtils.RequestTypeRequestMultiResponses, 0, 1, exceptionMsg, requestId,
+                                true, 0, 0);
+                            TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+                        }
+                        else
+                        {
+                            var rrData = new RequestResponseData()
+                            {
+                                RequestId = requestId,
+                                Module = module,
+                                Command = command,
+                                Packet = reqPacket,
+                            };
+                            new Task(() => HandleRequestMultiResponses(rrData)).Start();
+                        }
                     }
 
 
@@ -114,6 +133,28 @@ namespace TcpConnectors
                 var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, ex.Message, rrData.RequestId);
                 TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
             }
+        }
+        private void HandleRequestMultiResponses(RequestResponseData rrData)
+        {
+            try
+            {
+                _serverConnectors.TriggerOnRequestMultiResponsesPacket(this, rrData.Module, rrData.Command, rrData.RequestId, rrData.Packet, RequestMultiResponsesCallback);
+            }
+            catch (Exception ex)
+            {
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRequestResponseException, $"Module={rrData.Module} Command={rrData.Command} ex={ex.ToString()}");
+                var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, ex.Message, rrData.RequestId);
+                TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
+            }
+        }
+
+        private void RequestMultiResponsesCallback(
+            ServerConnectorContext serverConnectorContext, int module, int command, int requestId,
+            object packet, bool isLast, int nRecieved, int nTotal, Exception exception)
+        {
+            var resBuf = ConnectorsUtils.SerializeMultiResponsePacket(
+                ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId, isLast, nRecieved, nTotal);
+            TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
         }
 
         internal void OnSend()

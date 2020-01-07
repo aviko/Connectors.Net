@@ -65,6 +65,8 @@ namespace TcpConnectors
 
         public event Func<ServerConnectorContext, int, int, object, object> OnRequestPacket;
 
+        public event Action<ServerConnectorContext, int, int, int, object, Action<ServerConnectorContext, int, int, int, object, bool, int, int, Exception>> OnRequestMultiResponses;
+
         public event Action<ServerConnectorContext> OnDisconnect;
 
         public event Action<ServerConnectorContext, Exception> OnException;

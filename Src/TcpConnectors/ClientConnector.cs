@@ -48,7 +48,7 @@ namespace TcpConnectors
             TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
         }
 
-        public void SendRequestMultiResponses(int module, int command, object packet, Action<object, bool, Exception> responseCallback)
+        public void SendRequestMultiResponses(int module, int command, object packet, Action<object, bool, Exception> responseCallback, Type responseType)
         {
             if (IsConnected == false)
             {
@@ -56,9 +56,10 @@ namespace TcpConnectors
             }
             var requestId = _nextRequestId += 2;
             byte[] output = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId);
+
             _reqMultiResHandler.Request(
                 requestId, () => { TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp); },
-                responseCallback);
+                responseCallback);//,                responseType);
         }
 
 

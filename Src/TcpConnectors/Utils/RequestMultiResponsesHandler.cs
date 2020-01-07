@@ -10,6 +10,7 @@ namespace TcpConnectors.Utils
     {
         private class RequestRecord
         {
+            //internal object _requestData;
             internal Action<object, bool, Exception> _action;
         }
 
@@ -21,14 +22,29 @@ namespace TcpConnectors.Utils
             _requestsMap = new ConcurrentDictionary<KEY, RequestRecord>();
         }
 
-        public void Request(KEY key, Action actionReq, Action<object, bool, Exception> actionRes, int timeOutMilliseconds = -1)
+        public void Request(
+            KEY key,
+            Action actionReq,
+            Action<object, bool, Exception> actionRes,
+            //object requestData = null,
+            int timeOutMilliseconds = -1)
         {
 
-            _requestsMap[key] = new RequestRecord { _action = actionRes };
+            _requestsMap[key] = new RequestRecord
+            {
+                _action = actionRes,
+                //_requestData = requestData,
+            };
 
             //perform action here
             actionReq();
         }
+
+        //public object GetRequestData(KEY key)
+        //{
+        //    _requestsMap.TryGetValue(key, out var requestRecord);
+        //    return requestRecord?._requestData;
+        //}
 
         public void HandleResponse(KEY key, object response, bool isLast)
         {
