@@ -16,7 +16,10 @@ namespace TestRequestMultiResponseClient
 
             _clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
-                PacketsMap = new Dictionary<Tuple<int, int>, Type>() { { new Tuple<int, int>(1, 1), typeof(GetListResponsePacket) }, },
+                PacketsMap = new Dictionary<Tuple<int, int>, Type>() {
+                    { new Tuple<int, int>(1, 1), typeof(GetListResponsePacket) },
+                    { new Tuple<int, int>(1, 2), typeof(GetListResponsePacket) },
+                },
                 ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1112) }
             });
 
@@ -46,7 +49,11 @@ namespace TestRequestMultiResponseClient
                     {
                         Console.WriteLine("Perform Request - multi responses");
 
-                        //_clientConnector.SendRequestMultiResponses(1, 2, new GetListRequestMultiResponsesPacket());
+                        _clientConnector.SendRequestMultiResponses(
+                            1, 
+                            2, 
+                            new GetListRequestPacket(),
+                            MultiResponseCallback);
 
                         //var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
                         //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
@@ -71,6 +78,12 @@ namespace TestRequestMultiResponseClient
                     Console.WriteLine("Exception:" + ex.ToString());
                 }
             }
+
+        }
+
+        private static void MultiResponseCallback(object packet, bool isLast, Exception exp)
+        {
+            Console.WriteLine($"MultiResponseCallback");
 
         }
 

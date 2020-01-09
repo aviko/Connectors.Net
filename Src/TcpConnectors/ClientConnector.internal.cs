@@ -40,6 +40,8 @@ namespace TcpConnectors
         {
             try
             {
+                OnDebugLog?.Invoke(DebugLogType.Info, "OnRecv - start");
+
                 _lastRecvTime = DateTime.UtcNow;
 
                 // module, command
@@ -50,8 +52,12 @@ namespace TcpConnectors
                     byte module = 0, command = 0, requestType = 0;
                     try
                     {
-                        requestType = buf[0];
-                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestId, out module, out command);
+                        requestType = buf[1];
+                        OnDebugLog?.Invoke(DebugLogType.Info, $"OnRecv - requestType = {requestType}");
+                        if (requestType != ConnectorsUtils.RequestTypeRequestMultiResponses)
+                        {
+                            reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _settings.PacketsMap, out requestId, out module, out command);
+                        }
                     }
                     catch (Exception ex) { OnDebugLog?.Invoke(DebugLogType.OnRecvException, ex.ToString()); }
 
@@ -91,13 +97,22 @@ namespace TcpConnectors
 
                     if (requestType == ConnectorsUtils.RequestTypeRequestMultiResponses)
                     {
-                        //var responseType = _reqMultiResHandler.GetRequestData(requestId) as Type;
-                        //if (responseType == null)
-                        //{
-                        //    throw new Exception("RequestTypeRequestMultiResponses - responseType is nul");
-                        //}
+                        if (module == 0 && command == 1)
+                        {
+                            _reqMultiResHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                        }
+                        else
+                        {
+                            OnDebugLog?.Invoke(DebugLogType.Info, $"OnRecv - ConnectorsUtils.RequestTypeRequestMultiResponses");
 
 
+                            reqPacket = ConnectorsUtils.DeserializeMultiResponsePacket(
+                                buf, _settings.PacketsMap, out requestId,
+                                out bool isLast, out int nRecieved, out int nTotal,
+                                out module, out command);
+
+                            _reqMultiResHandler.HandleResponse(requestId, reqPacket, isLast);
+                        }
                     }
 
                 }

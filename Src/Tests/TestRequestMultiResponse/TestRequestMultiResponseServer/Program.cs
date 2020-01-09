@@ -16,7 +16,10 @@ namespace TestRequestMultiResponseServer
 
             _serverConnectors = new ServerConnectors(new ServerConnectorsSettings()
             {
-                PacketsMap = new Dictionary<Tuple<int, int>, Type>() { { new Tuple<int, int>(1, 1), typeof(GetListRequestPacket) }, },
+                PacketsMap = new Dictionary<Tuple<int, int>, Type>() {
+                    { new Tuple<int, int>(1, 1), typeof(GetListRequestPacket) },
+                    { new Tuple<int, int>(1, 2), typeof(GetListRequestPacket) },
+                },
                 ListenPort = 1112,
             });
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
@@ -26,7 +29,29 @@ namespace TestRequestMultiResponseServer
             _serverConnectors.OnException += ServerConnectors_OnException;
             _serverConnectors.OnDebugLog += ServerConnectors_OnDebugLog;
 
+            _serverConnectors.OnRequestMultiResponses += ServerConnectors_OnRequestMultiResponses;
+
             _serverConnectors.Listen();
+        }
+
+        private static void ServerConnectors_OnRequestMultiResponses(
+            ServerConnectorContext serverConnectorContext, int module, int command, int requestId, object packet,
+            Action<ServerConnectorContext, int, int, int, object, bool, int, int, Exception> callback)
+        {
+            Console.WriteLine("ServerConnectors_OnRequestMultiResponses");
+
+            var list = new List<string>();
+
+            for (int i = 0; i < 35_000; i++)
+            {
+                list.Add(i.ToString());
+                if (i % 1000000 == 0) Console.WriteLine(i);
+            }
+
+            callback(
+                serverConnectorContext, module, command, requestId,
+                new GetListResponsePacket() { List = list },
+                true, 1, 1, null);
         }
 
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext connectorContext, int module, int command, object packet)

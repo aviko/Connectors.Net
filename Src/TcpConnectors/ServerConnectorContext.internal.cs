@@ -30,6 +30,8 @@ namespace TcpConnectors
         {
             try
             {
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.Info, "Recv stated");
+
                 if (buf[0] == 0) //request response packet
                 {
                     object reqPacket = null;
@@ -38,8 +40,15 @@ namespace TcpConnectors
                     byte module = 0, command = 0, requestType = 0;
                     try
                     {
-                        requestType = buf[0];
-                        reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestId, out module, out command);
+                        requestType = buf[1];
+
+                        _serverConnectors.TriggerOnDebugLog(this, DebugLogType.Info, $"Recv requestType = {requestType}");
+
+
+                        //if (requestType != ConnectorsUtils.RequestTypeRequestMultiResponses)
+                        {
+                            reqPacket = ConnectorsUtils.DeserializeRequestPacket(buf, _serverConnectors._settings.PacketsMap, out requestId, out module, out command);
+                        }
                     }
                     catch (Exception ex) { exceptionMsg = ex.Message; }
 
@@ -67,6 +76,7 @@ namespace TcpConnectors
                         }
                         else
                         {
+
                             var rrData = new RequestResponseData()
                             {
                                 RequestId = requestId,
@@ -74,6 +84,7 @@ namespace TcpConnectors
                                 Command = command,
                                 Packet = reqPacket,
                             };
+
                             new Task(() => HandleRequestResponse(rrData)).Start();
                         }
                     }
@@ -89,6 +100,13 @@ namespace TcpConnectors
                         }
                         else
                         {
+                            //reqPacket = ConnectorsUtils.DeserializeMultiResponsePacket(
+                            //    buf, _serverConnectors._settings.PacketsMap, out requestId,
+                            //    out bool isLast, out int nRecieved, out int nTotal,
+                            //    out module, out command);
+
+                            _serverConnectors.TriggerOnDebugLog(this, DebugLogType.Info, $"Recv RequestTypeRequestResponse requestId = {requestId}");
+
                             var rrData = new RequestResponseData()
                             {
                                 RequestId = requestId,
@@ -152,6 +170,8 @@ namespace TcpConnectors
             ServerConnectorContext serverConnectorContext, int module, int command, int requestId,
             object packet, bool isLast, int nRecieved, int nTotal, Exception exception)
         {
+            Console.WriteLine($"*********** RequestMultiResponsesCallback ************ requestId = {requestId}");
+
             var resBuf = ConnectorsUtils.SerializeMultiResponsePacket(
                 ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId, isLast, nRecieved, nTotal);
             TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
