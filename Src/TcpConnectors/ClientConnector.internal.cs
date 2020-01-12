@@ -111,7 +111,7 @@ namespace TcpConnectors
                                 out bool isLast, out int nRecieved, out int nTotal,
                                 out module, out command);
 
-                            _reqMultiResHandler.HandleResponse(requestId, reqPacket, isLast);
+                            _reqMultiResHandler.HandleResponse(requestId, reqPacket, isLast, nRecieved, nTotal);
                         }
                     }
 

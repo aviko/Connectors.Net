@@ -42,7 +42,7 @@ namespace TestRequestMultiResponseServer
 
             var list = new List<string>();
 
-            for (int i = 0; i < 35_000; i++)
+            for (int i = 0; i < 35; i++)
             {
                 list.Add(i.ToString());
                 if (i % 1000000 == 0) Console.WriteLine(i);
@@ -51,7 +51,17 @@ namespace TestRequestMultiResponseServer
             callback(
                 serverConnectorContext, module, command, requestId,
                 new GetListResponsePacket() { List = list },
-                true, 1, 1, null);
+                false, 1, 3, null);
+
+            callback(
+                serverConnectorContext, module, command, requestId,
+                new GetListResponsePacket() { List = list },
+                false, 2, 3, null);
+
+            callback(
+                serverConnectorContext, module, command, requestId,
+                new GetListResponsePacket() { List = list },
+                true, 3, 3, null);
         }
 
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext connectorContext, int module, int command, object packet)

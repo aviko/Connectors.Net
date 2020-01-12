@@ -81,9 +81,10 @@ namespace TestRequestMultiResponseClient
 
         }
 
-        private static void MultiResponseCallback(object packet, bool isLast, Exception exp)
+        private static void MultiResponseCallback(object packet, bool isLast, int nRecieved, int nTotal, Exception exp)
         {
-            Console.WriteLine($"MultiResponseCallback");
+            Console.WriteLine($"MultiResponseCallback isLast={isLast} nRecieved={nRecieved} nTotal={nTotal} ");
+            Console.WriteLine($"packet = {JsonConvert.SerializeObject(packet, Formatting.Indented)}");
 
         }
 

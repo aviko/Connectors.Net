@@ -6,57 +6,41 @@ using System.Threading;
 
 namespace TcpConnectors.Utils
 {
+    public delegate void RequestMultiResponsesCallback(object packet, bool isLast, int nProgress, int nTotal, Exception ex);
+
     public class RequestMultiResponsesHandler<KEY> : IDisposable
     {
-        private class RequestRecord
-        {
-            //internal object _requestData;
-            internal Action<object, bool, Exception> _action;
-        }
 
-        private ConcurrentDictionary<KEY, RequestRecord> _requestsMap { get; set; }
+        private ConcurrentDictionary<KEY, RequestMultiResponsesCallback> _requestsMap { get; set; }
         protected bool _disposed = false;
 
         public RequestMultiResponsesHandler()
         {
-            _requestsMap = new ConcurrentDictionary<KEY, RequestRecord>();
+            _requestsMap = new ConcurrentDictionary<KEY, RequestMultiResponsesCallback>();
         }
 
         public void Request(
             KEY key,
             Action actionReq,
-            Action<object, bool, Exception> actionRes,
+            RequestMultiResponsesCallback actionRes,
             //object requestData = null,
             int timeOutMilliseconds = -1)
         {
 
-            _requestsMap[key] = new RequestRecord
-            {
-                _action = actionRes,
-                //_requestData = requestData,
-            };
+            _requestsMap[key] = actionRes;
 
             //perform action here
             actionReq();
         }
 
-        //public object GetRequestData(KEY key)
-        //{
-        //    _requestsMap.TryGetValue(key, out var requestRecord);
-        //    return requestRecord?._requestData;
-        //}
-
-        public void HandleResponse(KEY key, object response, bool isLast)
+        public void HandleResponse(KEY key, object response, bool isLast, int nRecieved, int nTotal)
         {
             if (_disposed) return;
-            _requestsMap.TryGetValue(key, out var requestRecord);
+            _requestsMap.TryGetValue(key, out var action);
 
-            if (requestRecord != null)
-            {
-                requestRecord._action(response, isLast, null);
-            }
+            action?.Invoke(response, isLast, nRecieved, nTotal, null);
 
-            if (isLast) _requestsMap.TryRemove(key, out requestRecord);
+            if (isLast) _requestsMap.TryRemove(key, out action);
         }
 
         public void HandleExceptionResponse(KEY key, Exception exception)
@@ -67,12 +51,9 @@ namespace TcpConnectors.Utils
 
         private void _HandleExceptionResponse(KEY key, Exception exception)
         {
-            _requestsMap.TryRemove(key, out var requestRecord);
+            _requestsMap.TryRemove(key, out var action);
 
-            if (requestRecord != null)
-            {
-                requestRecord._action(null, true, exception);
-            }
+            action?.Invoke(null, true, 0, 0, exception);
         }
 
         public void HandleExceptionResponseForAll(Exception exception)

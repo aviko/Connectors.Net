@@ -26,11 +26,11 @@ namespace TestRequestMultiResponseClient
                     if (n > 0)
                     {
                         var list = Enumerable.Range(1, n).Select(x => (object)x).ToList();
-                        _requestMultiResponsesHandler.HandleResponse(1, list, false);
+                        _requestMultiResponsesHandler.HandleResponse(1, list, false, 3, 3);
                     }
                     else
                     {
-                        _requestMultiResponsesHandler.HandleResponse(1, null, true);
+                        _requestMultiResponsesHandler.HandleResponse(1, null, true, 3, 4);
                     }
                 }
 
@@ -42,7 +42,7 @@ namespace TestRequestMultiResponseClient
             }
         }
 
-        public void ActionRes(object res, bool isLast, Exception exception)
+        public void ActionRes(object res, bool isLast, int r, int t, Exception exception)
         {
             Console.WriteLine($"ActionRes(res={JsonConvert.SerializeObject(res)}, isLast={isLast}, exception={exception?.Message})");
         }
