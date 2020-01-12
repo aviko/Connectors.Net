@@ -53,6 +53,9 @@ namespace TestRequestMultiResponseServer
                 new GetListResponsePacket() { List = list },
                 false, 1, 3, null);
 
+            //throw new Exception("ServerConnectors_OnRequestMultiResponses");
+
+
             callback(
                 serverConnectorContext, module, command, requestId,
                 new GetListResponsePacket() { List = list },
@@ -67,6 +70,8 @@ namespace TestRequestMultiResponseServer
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext connectorContext, int module, int command, object packet)
         {
             var list = new List<string>();
+
+            //throw new Exception("ServerConnectors_OnRequestPacket");
 
             for (int i = 0; i < 35_000_000; i++)
             {

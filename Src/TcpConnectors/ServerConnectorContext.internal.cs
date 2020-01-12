@@ -147,7 +147,7 @@ namespace TcpConnectors
             }
             catch (Exception ex)
             {
-                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRequestResponseException, $"Module={rrData.Module} Command={rrData.Command} ex={ex.ToString()}");
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRecvException, $"Module={rrData.Module} Command={rrData.Command} ex={ex.ToString()}");
                 var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, ex.Message, rrData.RequestId);
                 TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
             }
@@ -160,8 +160,8 @@ namespace TcpConnectors
             }
             catch (Exception ex)
             {
-                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRequestResponseException, $"Module={rrData.Module} Command={rrData.Command} ex={ex.ToString()}");
-                var resBuf = ConnectorsUtils.SerializeRequestPacket(ConnectorsUtils.RequestTypeRequestResponse, 0, 1, ex.Message, rrData.RequestId);
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnRecvException, $"Module={rrData.Module} Command={rrData.Command} ex={ex.ToString()}");
+                var resBuf = ConnectorsUtils.SerializeMultiResponsePacket(ConnectorsUtils.RequestTypeRequestMultiResponses, 0, 1, ex.Message, rrData.RequestId, true, 0, 0);
                 TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
             }
         }

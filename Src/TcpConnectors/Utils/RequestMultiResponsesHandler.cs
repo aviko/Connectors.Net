@@ -36,11 +36,14 @@ namespace TcpConnectors.Utils
         public void HandleResponse(KEY key, object response, bool isLast, int nRecieved, int nTotal)
         {
             if (_disposed) return;
-            _requestsMap.TryGetValue(key, out var action);
+
+            RequestMultiResponsesCallback action;
+
+            if (isLast == false) _requestsMap.TryGetValue(key, out action); //get and keep for next packets...
+            else _requestsMap.TryRemove(key, out action); //get and remove, no more packets
 
             action?.Invoke(response, isLast, nRecieved, nTotal, null);
 
-            if (isLast) _requestsMap.TryRemove(key, out action);
         }
 
         public void HandleExceptionResponse(KEY key, Exception exception)
