@@ -124,7 +124,7 @@ namespace TcpConnectors
 
         internal void TriggerOnRequestMultiResponsesPacket(
             ServerConnectorContext serverConnectorContext, int module, int command, int requestId, object packet,
-            Action<ServerConnectorContext, int, int, int, object, bool, int, int, Exception> callback)
+            RequestMultiResponsesServerCallback callback)
         {
             OnRequestMultiResponses?.Invoke(serverConnectorContext, module, command, requestId, packet, callback);
         }

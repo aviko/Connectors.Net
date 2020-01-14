@@ -43,7 +43,7 @@ namespace TestRequestMultiResponseClient
                         Console.WriteLine("Perform Request (large single response)");
                         var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
                         //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");
-                        Console.WriteLine($"response packet count:{resPacket.List.Count}");
+                        Console.WriteLine($"response packet count:{resPacket.Records.Count}");
                     }
                     else if (inputLine == "m")
                     {

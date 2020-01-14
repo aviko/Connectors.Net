@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static TcpConnectors.SendPacketsUtils;
 
 namespace TestRequestMultiResponseCommon
 {
@@ -10,12 +11,12 @@ namespace TestRequestMultiResponseCommon
         public const byte COMMAND = 1;
     }
 
-    public class GetListResponsePacket 
+    public class GetListResponsePacket : IMultiResponseListPacket<string>
     {
         public const byte MODULE = 1;
         public const byte COMMAND = 1;
 
-        public List<string> List { get; set; }
+        public List<string> Records { get; set; }
     }
     public class GetListRequestMultiResponsesPacket
     {

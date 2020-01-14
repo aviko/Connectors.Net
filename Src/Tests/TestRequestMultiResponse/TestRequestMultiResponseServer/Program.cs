@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using TcpConnectors;
+using TcpConnectors.Utils;
 using TestRequestMultiResponseCommon;
 
 namespace TestRequestMultiResponseServer
@@ -36,35 +37,38 @@ namespace TestRequestMultiResponseServer
 
         private static void ServerConnectors_OnRequestMultiResponses(
             ServerConnectorContext serverConnectorContext, int module, int command, int requestId, object packet,
-            Action<ServerConnectorContext, int, int, int, object, bool, int, int, Exception> callback)
+            RequestMultiResponsesServerCallback callback)
         {
             Console.WriteLine("ServerConnectors_OnRequestMultiResponses");
 
             var list = new List<string>();
 
-            for (int i = 0; i < 35; i++)
+            for (int i = 0; i < 3500; i++)
             {
                 list.Add(i.ToString());
                 if (i % 1000000 == 0) Console.WriteLine(i);
             }
 
-            callback(
-                serverConnectorContext, module, command, requestId,
-                new GetListResponsePacket() { List = list },
-                false, 1, 3, null);
+            //callback(
+            //    serverConnectorContext, module, command, requestId,
+            //    new GetListResponsePacket() { Records = list },
+            //    false, 1, 3, null);
 
-            //throw new Exception("ServerConnectors_OnRequestMultiResponses");
+            ////throw new Exception("ServerConnectors_OnRequestMultiResponses");
 
 
-            callback(
-                serverConnectorContext, module, command, requestId,
-                new GetListResponsePacket() { List = list },
-                false, 2, 3, null);
+            //callback(
+            //    serverConnectorContext, module, command, requestId,
+            //    new GetListResponsePacket() { Records = list },
+            //    false, 2, 3, null);
 
-            callback(
-                serverConnectorContext, module, command, requestId,
-                new GetListResponsePacket() { List = list },
-                true, 3, 3, null);
+            //callback(
+            //    serverConnectorContext, module, command, requestId,
+            //    new GetListResponsePacket() { Records = list },
+            //    true, 3, 3, null);
+
+
+            serverConnectorContext.SendMultiResponse(module, command, requestId, callback, new GetListResponsePacket(), list, 100);
         }
 
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext connectorContext, int module, int command, object packet)
@@ -79,7 +83,7 @@ namespace TestRequestMultiResponseServer
                 if (i % 1000000 == 0) Console.WriteLine(i);
             }
 
-            return new GetListResponsePacket() { List = list };
+            return new GetListResponsePacket() { Records = list };
         }
 
         private static void ServerConnectors_OnDebugLog(ServerConnectorContext connectorContext, DebugLogType logType, string info)

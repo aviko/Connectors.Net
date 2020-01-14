@@ -18,6 +18,14 @@ namespace TcpConnectors
     }
 
 
+    //serverConnectorContext, , , ,
+    //            new GetListResponsePacket() { Records = list },
+    //            false, 2, 3, null
+
+    public delegate void RequestMultiResponsesServerCallback(
+        ServerConnectorContext context, int module, int command, int requestId, object packet, 
+        bool isLast, int nProgress, int ntotal, Exception exp);
+
     public partial class ServerConnectors
     {
         public ServerConnectors(ServerConnectorsSettings settings)
@@ -65,7 +73,7 @@ namespace TcpConnectors
 
         public event Func<ServerConnectorContext, int, int, object, object> OnRequestPacket;
 
-        public event Action<ServerConnectorContext, int, int, int, object, Action<ServerConnectorContext, int, int, int, object, bool, int, int, Exception>> OnRequestMultiResponses;
+        public event Action<ServerConnectorContext, int, int, int, object, RequestMultiResponsesServerCallback> OnRequestMultiResponses;
 
         public event Action<ServerConnectorContext> OnDisconnect;
 

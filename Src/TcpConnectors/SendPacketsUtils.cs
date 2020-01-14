@@ -16,6 +16,12 @@ namespace TcpConnectors
         public interface IServer2ClientPacket
         {
         }
+
+        public interface IMultiResponseListPacket<T> : IServer2ClientPacket
+        {
+            List<T> Records { get; set; }
+        }
+
         public static Dictionary<Tuple<int, int>, Type> GetClient2ServerMapping(Assembly assembly)
         {
             return GetMapping(assembly, typeof(IClient2ServerPacket));
@@ -87,5 +93,51 @@ namespace TcpConnectors
             GetModuleCommandValues(server2ClientPacket.GetType(), out var module, out var command);
             serverConnectors.Send(filter, module, command, server2ClientPacket);
         }
+
+        public static void SendMultiResponse<T>(this ServerConnectorContext serverConnectorContext, int module, int command, int requestId,
+            RequestMultiResponsesServerCallback callback, IMultiResponseListPacket<T> packet, List<T> list, int chunkSize = 1000)
+        {
+
+            var chunks = Split(list, chunkSize);
+
+            int count = 0; 
+            foreach (var chunk in chunks)
+            {
+                packet.Records = chunk;
+                count += chunk.Count;
+
+                callback(
+                    serverConnectorContext, module, command, requestId,
+                    packet,
+                    count == list.Count,
+                    count,
+                    list.Count, 
+                    null);
+            }
+        }
+
+
+        private static List<List<T>> Split<T>(IEnumerable<T> collection, int size)
+        {
+            var chunks = new List<List<T>>();
+            var count = 0;
+            var temp = new List<T>();
+
+            foreach (var element in collection)
+            {
+                if (count++ == size)
+                {
+                    chunks.Add(temp);
+                    temp = new List<T>();
+                    count = 1;
+                }
+                temp.Add(element);
+            }
+            chunks.Add(temp);
+
+            return chunks;
+        }
+
+
     }
 }

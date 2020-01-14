@@ -48,7 +48,7 @@ namespace TcpConnectors
             TcpSocketsUtils.Send(_socket, output, OnSend, OnExcp);
         }
 
-        public void SendRequestMultiResponses(int module, int command, object packet, RequestMultiResponsesCallback responseCallback)
+        public void SendRequestMultiResponses(int module, int command, object packet, RequestMultiResponsesClientCallback responseCallback)
         {
             if (IsConnected == false)
             {

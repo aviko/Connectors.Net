@@ -6,23 +6,23 @@ using System.Threading;
 
 namespace TcpConnectors.Utils
 {
-    public delegate void RequestMultiResponsesCallback(object packet, bool isLast, int nProgress, int nTotal, Exception ex);
+    public delegate void RequestMultiResponsesClientCallback(object packet, bool isLast, int nProgress, int nTotal, Exception ex);
 
     public class RequestMultiResponsesHandler<KEY> : IDisposable
     {
 
-        private ConcurrentDictionary<KEY, RequestMultiResponsesCallback> _requestsMap { get; set; }
+        private ConcurrentDictionary<KEY, RequestMultiResponsesClientCallback> _requestsMap { get; set; }
         protected bool _disposed = false;
 
         public RequestMultiResponsesHandler()
         {
-            _requestsMap = new ConcurrentDictionary<KEY, RequestMultiResponsesCallback>();
+            _requestsMap = new ConcurrentDictionary<KEY, RequestMultiResponsesClientCallback>();
         }
 
         public void Request(
             KEY key,
             Action actionReq,
-            RequestMultiResponsesCallback actionRes,
+            RequestMultiResponsesClientCallback actionRes,
             //object requestData = null,
             int timeOutMilliseconds = -1)
         {
@@ -37,7 +37,7 @@ namespace TcpConnectors.Utils
         {
             if (_disposed) return;
 
-            RequestMultiResponsesCallback action;
+            RequestMultiResponsesClientCallback action;
 
             if (isLast == false) _requestsMap.TryGetValue(key, out action); //get and keep for next packets...
             else _requestsMap.TryRemove(key, out action); //get and remove, no more packets
