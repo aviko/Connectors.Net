@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TcpConnectors.Utils;
 
@@ -56,6 +57,10 @@ namespace TcpConnectors
                     TcpSocketsUtils.Send(connector.Socket, output, connector.OnSend, connector.OnExcp);
                 }
             }
+        }
+        public List<ServerConnectorContext> GetServerConnectorContexts()
+        {
+            return _contextMap.Values.ToList();
         }
 
         public void Send(int contextId, int module, int command, object packet)
