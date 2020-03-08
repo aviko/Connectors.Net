@@ -20,7 +20,7 @@ namespace TestSimpleEchoServer
             });
             _serverConnectors.OnNewConnector += ServerConnectors_OnNewConnector;
             _serverConnectors.OnPacket += ServerConnectors_OnPacket; ;
-            //_serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket; 
+            _serverConnectors.OnRequestPacket += ServerConnectors_OnRequestPacket;
             _serverConnectors.OnDisconnect += ServerConnectors_OnDisconnect;
             _serverConnectors.OnException += ServerConnectors_OnException;
             _serverConnectors.OnDebugLog += ServerConnectors_OnDebugLog;
@@ -28,6 +28,10 @@ namespace TestSimpleEchoServer
             _serverConnectors.Listen();
         }
 
+        private static object ServerConnectors_OnRequestPacket(ServerConnectorContext arg1, int arg2, int arg3, object arg4)
+        {
+            throw new NotImplementedException();
+        }
 
         private static void ServerConnectors_OnDebugLog(ServerConnectorContext connectorContext, DebugLogType logType, string info)
         {

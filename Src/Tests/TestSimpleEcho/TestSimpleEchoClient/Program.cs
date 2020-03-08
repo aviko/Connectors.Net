@@ -37,7 +37,17 @@ namespace TestSimpleEchoClient
                 {
                     Console.WriteLine("Enter Input");
                     var inputLine = Console.ReadLine();
-                    _clientConnector.Send(1, 1, inputLine);
+
+                    if (inputLine == "exp")
+                    {
+                        _clientConnector.SendRequest(1, 1, inputLine);
+                    }
+                    else
+                    {
+                        _clientConnector.Send(1, 1, inputLine);
+                    }
+
+
                 }
                 catch (Exception ex)
                 {

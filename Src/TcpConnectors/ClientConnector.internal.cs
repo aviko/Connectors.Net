@@ -75,7 +75,9 @@ namespace TcpConnectors
                         {
                             if (module == 0 && command == 1)
                             {
-                                _reqResHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                                _reqResHandler.HandleExceptionResponse(
+                                    requestId,
+                                    new Exception("Exception in Server, check inner exception", new Exception((reqPacket ?? "").ToString())));
                             }
                             else
                             {
@@ -86,7 +88,9 @@ namespace TcpConnectors
                         {
                             if (module == 0 && command == 1)
                             {
-                                _reqResAsyncHandler.HandleExceptionResponse(requestId, new Exception((reqPacket ?? "").ToString()));
+                                _reqResAsyncHandler.HandleExceptionResponse(
+                                    requestId,
+                                    new Exception("Exception in Server, check inner exception", new Exception((reqPacket ?? "").ToString())));
                             }
                             else
                             {
