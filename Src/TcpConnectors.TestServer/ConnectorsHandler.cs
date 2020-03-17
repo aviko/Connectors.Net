@@ -74,7 +74,7 @@ namespace TcpConnectors.TestServer
             HandlePacket(serverConnectorContext, module, command, (dynamic)packet);
         }
 
-        private static void ServerConnectors_OnNewConnector(ServerConnectorContext serverConnectorContext)
+        private void ServerConnectors_OnNewConnector(ServerConnectorContext serverConnectorContext)
         {
             Console.WriteLine($"ServerConnectors_OnNewConnector RemoteEndPoint:{serverConnectorContext.Socket.RemoteEndPoint.ToString()}");
         }

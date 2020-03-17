@@ -15,17 +15,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A42F77CF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestSimpleEcho", "TestSimpleEcho", "{09A57DA0-E0B4-48AD-A64D-34CD14CF5AF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimpleEchoServer", "Tests\TestSimpleEcho\TestSimpleEchoServer\TestSimpleEchoServer.csproj", "{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestSimpleEchoServer", "Tests\TestSimpleEcho\TestSimpleEchoServer\TestSimpleEchoServer.csproj", "{44A376F5-7D64-46F0-AFE8-3AFF6E8AEB39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimpleEchoClient", "Tests\TestSimpleEcho\TestSimpleEchoClient\TestSimpleEchoClient.csproj", "{827BC011-0534-4D86-AEA1-A5BD9EFC323C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestSimpleEchoClient", "Tests\TestSimpleEcho\TestSimpleEchoClient\TestSimpleEchoClient.csproj", "{827BC011-0534-4D86-AEA1-A5BD9EFC323C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestRequestMultiResponse", "TestRequestMultiResponse", "{B51F1A37-AF6D-4D59-B5D6-122AB5685D32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRequestMultiResponseClient", "Tests\TestRequestMultiResponse\TestRequestMultiResponseClient\TestRequestMultiResponseClient.csproj", "{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRequestMultiResponseClient", "Tests\TestRequestMultiResponse\TestRequestMultiResponseClient\TestRequestMultiResponseClient.csproj", "{88AB4823-F7A7-4A7F-AF32-52F5B22B7737}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRequestMultiResponseServer", "Tests\TestRequestMultiResponse\TestRequestMultiResponseServer\TestRequestMultiResponseServer.csproj", "{CD250956-38C2-4B06-8000-95E923525D4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRequestMultiResponseServer", "Tests\TestRequestMultiResponse\TestRequestMultiResponseServer\TestRequestMultiResponseServer.csproj", "{CD250956-38C2-4B06-8000-95E923525D4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRequestMultiResponseCommon", "Tests\TestRequestMultiResponse\TestRequestMultiResponseCommon\TestRequestMultiResponseCommon.csproj", "{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRequestMultiResponseCommon", "Tests\TestRequestMultiResponse\TestRequestMultiResponseCommon\TestRequestMultiResponseCommon.csproj", "{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StressSimulator", "StressSimulator", "{67E1CEAA-A167-4973-A287-C7C8167ACBF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StressSimulatorClient", "Tests\StressSimulator\StressSimulatorClient\StressSimulatorClient.csproj", "{16FB7FE0-1A04-448F-B3BD-673D1DEBEFD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StressSimulatorServer", "Tests\StressSimulator\StressSimulatorServer\StressSimulatorServer.csproj", "{0D6C2956-46D1-4F72-8893-F9C645CBA473}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StressSimulatorCommon", "Tests\StressSimulator\StressSimulatorCommon\StressSimulatorCommon.csproj", "{E321349F-FCEE-4ADF-8EAF-320601E1D124}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +77,18 @@ Global
 		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16FB7FE0-1A04-448F-B3BD-673D1DEBEFD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16FB7FE0-1A04-448F-B3BD-673D1DEBEFD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16FB7FE0-1A04-448F-B3BD-673D1DEBEFD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16FB7FE0-1A04-448F-B3BD-673D1DEBEFD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D6C2956-46D1-4F72-8893-F9C645CBA473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D6C2956-46D1-4F72-8893-F9C645CBA473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D6C2956-46D1-4F72-8893-F9C645CBA473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D6C2956-46D1-4F72-8893-F9C645CBA473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E321349F-FCEE-4ADF-8EAF-320601E1D124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E321349F-FCEE-4ADF-8EAF-320601E1D124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E321349F-FCEE-4ADF-8EAF-320601E1D124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E321349F-FCEE-4ADF-8EAF-320601E1D124}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +101,10 @@ Global
 		{88AB4823-F7A7-4A7F-AF32-52F5B22B7737} = {B51F1A37-AF6D-4D59-B5D6-122AB5685D32}
 		{CD250956-38C2-4B06-8000-95E923525D4D} = {B51F1A37-AF6D-4D59-B5D6-122AB5685D32}
 		{D38C4A98-84E4-4E6F-8B8C-E1F95A8B0856} = {B51F1A37-AF6D-4D59-B5D6-122AB5685D32}
+		{67E1CEAA-A167-4973-A287-C7C8167ACBF9} = {A42F77CF-1010-424C-8A94-B5DD437CD054}
+		{16FB7FE0-1A04-448F-B3BD-673D1DEBEFD9} = {67E1CEAA-A167-4973-A287-C7C8167ACBF9}
+		{0D6C2956-46D1-4F72-8893-F9C645CBA473} = {67E1CEAA-A167-4973-A287-C7C8167ACBF9}
+		{E321349F-FCEE-4ADF-8EAF-320601E1D124} = {67E1CEAA-A167-4973-A287-C7C8167ACBF9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6649EDD4-35B8-44A9-9FF1-97117BBBE39E}
