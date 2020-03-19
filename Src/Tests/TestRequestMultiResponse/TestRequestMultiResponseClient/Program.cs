@@ -81,9 +81,9 @@ namespace TestRequestMultiResponseClient
 
         }
 
-        private static void MultiResponseCallback(object packet, bool isLast, int nRecieved, int nTotal, Exception exp)
+        private static void MultiResponseCallback(object packet, bool isLast, int nReceived, int nTotal, Exception exp)
         {
-            Console.WriteLine($"MultiResponseCallback isLast={isLast} nRecieved={nRecieved} nTotal={nTotal} ");
+            Console.WriteLine($"MultiResponseCallback isLast={isLast} nReceived={nReceived} nTotal={nTotal} ");
 
             if (exp != null)
             {

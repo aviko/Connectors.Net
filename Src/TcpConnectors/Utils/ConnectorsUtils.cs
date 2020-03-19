@@ -55,19 +55,19 @@ namespace TcpConnectors.Utils
         //6 - module
         //7 - command
         //8 - isLast
-        //9-12 - recieved
+        //9-12 - received
         //13-16 - total
 
         internal static object DeserializeMultiResponsePacket(
             byte[] buf,
             Dictionary<Tuple<int, int>, Type> packetsMap,
             out int requestId,
-            out bool isLast, out int nRecieved, out int nTotal,
+            out bool isLast, out int nReceived, out int nTotal,
             out byte module, out byte command)
         {
             requestId = BitConverter.ToInt32(buf, 2);
             isLast = BitConverter.ToBoolean(buf, 6);
-            nRecieved = BitConverter.ToInt32(buf, 7);
+            nReceived = BitConverter.ToInt32(buf, 7);
             nTotal = BitConverter.ToInt32(buf, 11);
 
             return Deserialize(17, buf, packetsMap, out module, out command);
@@ -81,14 +81,14 @@ namespace TcpConnectors.Utils
             object packet,
             int requestId,
             bool isLast,
-            int nRecieved,
+            int nReceived,
             int nTotal)
         {
             var buf = Serialize(17, module, command, packet);
             buf[1] = requestType;
             Array.Copy(BitConverter.GetBytes(requestId), 0, buf, 2, 4);
             Array.Copy(BitConverter.GetBytes(isLast), 0, buf, 6, 1);
-            Array.Copy(BitConverter.GetBytes(nRecieved), 0, buf, 7, 4);
+            Array.Copy(BitConverter.GetBytes(nReceived), 0, buf, 7, 4);
             Array.Copy(BitConverter.GetBytes(nTotal), 0, buf, 11, 4);
             return buf;
         }

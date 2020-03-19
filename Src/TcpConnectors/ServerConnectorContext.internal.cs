@@ -15,8 +15,8 @@ namespace TcpConnectors
         }
 
         private ServerConnectors _serverConnectors;
-        internal long _lastRecievedKeepAliveTimestamp;
-        internal DateTime _lastRecievedInProgressTime;
+        internal long _lastReceivedKeepAliveTimestamp;
+        internal DateTime _lastReceivedInProgressTime;
         internal DateTime _connectedTime = default(DateTime);
 
         internal ServerConnectorContext(int id, ServerConnectors serverConnectors)
@@ -55,14 +55,14 @@ namespace TcpConnectors
 
                     if (requestType == ConnectorsUtils.RequestTypeKeepAlive) //keep alive
                     {
-                        _lastRecievedKeepAliveTimestamp = (long)reqPacket;
+                        _lastReceivedKeepAliveTimestamp = (long)reqPacket;
                         _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnKeepAlive, reqPacket.ToString());
                         return;
                     }
 
                     if (requestType == ConnectorsUtils.RequestTypeRecvInProgress) //client RecvInProgress (keep alive should be less sensitive)
                     {
-                        _lastRecievedInProgressTime = DateTime.UtcNow;
+                        _lastReceivedInProgressTime = DateTime.UtcNow;
                         _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnKeepAlive, "Recv in progress");
                         return;
                     }
@@ -102,7 +102,7 @@ namespace TcpConnectors
                         {
                             //reqPacket = ConnectorsUtils.DeserializeMultiResponsePacket(
                             //    buf, _serverConnectors._settings.PacketsMap, out requestId,
-                            //    out bool isLast, out int nRecieved, out int nTotal,
+                            //    out bool isLast, out int nReceived, out int nTotal,
                             //    out module, out command);
 
                             _serverConnectors.TriggerOnDebugLog(this, DebugLogType.Info, $"Recv RequestTypeRequestResponse requestId = {requestId}");
@@ -168,12 +168,12 @@ namespace TcpConnectors
 
         private void RequestMultiResponsesCallback(
             ServerConnectorContext serverConnectorContext, int module, int command, int requestId,
-            object packet, bool isLast, int nRecieved, int nTotal, Exception exception)
+            object packet, bool isLast, int nReceived, int nTotal, Exception exception)
         {
             Console.WriteLine($"*********** RequestMultiResponsesCallback ************ requestId = {requestId}");
 
             var resBuf = ConnectorsUtils.SerializeMultiResponsePacket(
-                ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId, isLast, nRecieved, nTotal);
+                ConnectorsUtils.RequestTypeRequestMultiResponses, module, command, packet, requestId, isLast, nReceived, nTotal);
             TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
         }
 

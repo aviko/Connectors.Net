@@ -33,7 +33,7 @@ namespace TcpConnectors.Utils
             actionReq();
         }
 
-        public void HandleResponse(KEY key, object response, bool isLast, int nRecieved, int nTotal)
+        public void HandleResponse(KEY key, object response, bool isLast, int nReceived, int nTotal)
         {
             if (_disposed) return;
 
@@ -42,7 +42,7 @@ namespace TcpConnectors.Utils
             if (isLast == false) _requestsMap.TryGetValue(key, out action); //get and keep for next packets...
             else _requestsMap.TryRemove(key, out action); //get and remove, no more packets
 
-            action?.Invoke(response, isLast, nRecieved, nTotal, null);
+            action?.Invoke(response, isLast, nReceived, nTotal, null);
 
         }
 

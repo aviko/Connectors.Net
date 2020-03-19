@@ -103,7 +103,7 @@ namespace TcpConnectors
                     {
                         reqPacket = ConnectorsUtils.DeserializeMultiResponsePacket(
                                 buf, _settings.PacketsMap, out requestId,
-                                out bool isLast, out int nRecieved, out int nTotal,
+                                out bool isLast, out int nReceived, out int nTotal,
                                 out module, out command);
 
                         if (module == 0 && command == 1)
@@ -114,7 +114,7 @@ namespace TcpConnectors
                         {
                             OnDebugLog?.Invoke(DebugLogType.Info, $"OnRecv - ConnectorsUtils.RequestTypeRequestMultiResponses");
 
-                            _reqMultiResHandler.HandleResponse(requestId, reqPacket, isLast, nRecieved, nTotal);
+                            _reqMultiResHandler.HandleResponse(requestId, reqPacket, isLast, nReceived, nTotal);
                         }
                     }
 

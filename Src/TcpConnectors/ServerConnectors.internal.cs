@@ -88,14 +88,14 @@ namespace TcpConnectors
                 //check new context
                 if ((DateTime.UtcNow - connector._connectedTime).TotalSeconds < _settings.KeepAliveGraceInterval) needToDisconnect = false;
 
-                //_lastRecievedLeepAliveTimestamp less than 30 seconds, and if RecievedInProgress give x6 time
+                //_lastReceivedLeepAliveTimestamp less than 30 seconds, and if ReceivedInProgress give x6 time
                 var keepAliveDisconnectInterval = _settings.KeepAliveDisconnectInterval;
-                if ((DateTime.UtcNow - connector._lastRecievedInProgressTime).TotalSeconds < 20)
+                if ((DateTime.UtcNow - connector._lastReceivedInProgressTime).TotalSeconds < 20)
                 {
                     keepAliveDisconnectInterval *= 6;
                 }
 
-                if ((_keepAliveTimestamp - connector._lastRecievedKeepAliveTimestamp) < keepAliveDisconnectInterval) needToDisconnect = false;
+                if ((_keepAliveTimestamp - connector._lastReceivedKeepAliveTimestamp) < keepAliveDisconnectInterval) needToDisconnect = false;
 
 
                 if (needToDisconnect)
