@@ -36,11 +36,14 @@ namespace TcpConnectors
             new Thread(PacketsQueueWorker).Start();
         }
 
-        private void OnRecv(byte[] buf)
+        private void OnRecv(byte[] buf, int grossRecvBytes)
         {
             try
             {
-                OnDebugLog?.Invoke(DebugLogType.Info, "OnRecv - start");
+                TotalDataBytesReceived += buf.Length;
+                TotalGrossBytesReceived += grossRecvBytes;
+
+                OnDebugLog?.Invoke(DebugLogType.Info, $"OnRecv - start, dataRecvBytes:{buf.Length}, grossRecvBytes:{grossRecvBytes}, TotalDataBytesReceived:{TotalDataBytesReceived}, TotalGrossBytesReceived:{TotalGrossBytesReceived}");
 
                 _lastRecvTime = DateTime.UtcNow;
 
@@ -160,10 +163,12 @@ namespace TcpConnectors
             }
         }
 
-        private void OnSend()
+        private void OnSend(int dataSentBytes, int grossSentBytes)
         {
-            OnDebugLog?.Invoke(DebugLogType.OnSend, "sent");
+            TotalDataBytesSent += dataSentBytes;
+            TotalGrossBytesSent += grossSentBytes;
 
+            OnDebugLog?.Invoke(DebugLogType.OnSend, $"dataSentBytes:{dataSentBytes}, grossSentBytes:{grossSentBytes}, TotalDataBytesSent:{TotalDataBytesSent}, TotalGrossBytesSent:{TotalGrossBytesSent}");
         }
 
         private bool _isInConnectInternal = false;

@@ -13,22 +13,15 @@ namespace TcpConnectors.Utils
         public const int ms_DefualtReceiveBufferSize = 1_000_000;
 
         //----------- Send Section ---------------
-        public delegate void OnSendDlgt();
+        public delegate void OnSendDlgt(int dataSentBytes, int grossSentBytes);
         private class SendState
         {
             public Socket m_socket;
             public OnSendDlgt m_onSend;
             public OnExcpDlgt m_onExcp;
             public byte[] m_buf;
-            public int m_BytesSentSoFar;
-        }
-
-        // Send a buffer on the given socket.
-        // The onSocket delegate will be executed once the send action has ended
-        public static void Send(Socket socket, string s, OnSendDlgt onSend, OnExcpDlgt onExcp)
-        {
-            byte[] BufferToSend = Encoding.UTF8.GetBytes(s);
-            Send(socket, BufferToSend, onSend, onExcp);
+            public int m_bytesSentSoFar;
+            public int m_bytesLenBuf;
         }
 
         private static void ConvertIntToArray(int Val, out byte[] OutArray)
@@ -65,7 +58,8 @@ namespace TcpConnectors.Utils
                 state.m_onSend = onSend;
                 state.m_onExcp = onExcp;
                 state.m_buf = new byte[lenBuf.Length + bufferToSend.Length];
-                state.m_BytesSentSoFar = 0;
+                state.m_bytesLenBuf = lenBuf.Length;
+                state.m_bytesSentSoFar = 0;
                 Buffer.BlockCopy(lenBuf, 0, state.m_buf, 0, lenBuf.Length);
                 Buffer.BlockCopy(bufferToSend, 0, state.m_buf, lenBuf.Length, bufferToSend.Length);
 
@@ -101,15 +95,15 @@ namespace TcpConnectors.Utils
 
                 // Complete sending the data to the remote device.
                 int bytesSent = state.m_socket.EndSend(ar);
-                state.m_BytesSentSoFar += bytesSent;
+                state.m_bytesSentSoFar += bytesSent;
                 //Console.WriteLine($"SendCallback m_BytesSentSoFar:{state.m_BytesSentSoFar} Length:{state.m_buf.Length}");
-                if (state.m_BytesSentSoFar < state.m_buf.Length)
+                if (state.m_bytesSentSoFar < state.m_buf.Length)
                 {
                     //keep sending
                     state.m_socket.BeginSend(
                         state.m_buf,
-                        state.m_BytesSentSoFar,
-                        state.m_buf.Length - state.m_BytesSentSoFar,
+                        state.m_bytesSentSoFar,
+                        state.m_buf.Length - state.m_bytesSentSoFar,
                         0,
                         new AsyncCallback(SendCallback),
                         state);
@@ -117,7 +111,7 @@ namespace TcpConnectors.Utils
                 }
                 else
                 {
-                    state.m_onSend();
+                    state.m_onSend(state.m_buf.Length - state.m_bytesLenBuf, state.m_buf.Length);
                 }
 
                 // Signal that all bytes have been sent.
@@ -140,7 +134,7 @@ namespace TcpConnectors.Utils
         /// NOTE: you MUSTN'T do any heavy action in your called method.
         /// </summary>
         /// <param name="buf"></param>
-        public delegate void OnRecvDlgt(byte[] buf);
+        public delegate void OnRecvDlgt(byte[] buf, int grossRecvBytes);
         public delegate void OnRecvProgressDlgt(int bytesRecived, int totalPacketLen);
         public delegate void OnExcpDlgt(Exception e);
 
@@ -155,6 +149,7 @@ namespace TcpConnectors.Utils
             public byte[] m_buf;
             public byte[] m_PrevLeftoverBuf;
             public bool m_recvLoop;
+            public int m_bytesLenBuf;
         }
 
         public static void Recv(Socket socket, OnRecvDlgt onRecv, OnExcpDlgt onExcp, OnRecvProgressDlgt onRecvProgress, int reciveBufferSize, bool recvLoop)
@@ -261,6 +256,7 @@ namespace TcpConnectors.Utils
                 // Read packet length
                 /********************************************************************/
                 packetLenBytes = 1;
+                state.m_bytesLenBuf = 1;
                 expectedTotalPacketLen = workingBuf[i] & 0x7F;
                 while ((workingBuf[i] & 0x80) == 0x80)
                 {
@@ -270,6 +266,7 @@ namespace TcpConnectors.Utils
                         expectedTotalPacketLen <<= 7;
                         expectedTotalPacketLen += workingBuf[i] & 0x7F;
                         packetLenBytes++;
+                        state.m_bytesLenBuf = packetLenBytes;
                     }
                     else
                     {
@@ -300,7 +297,7 @@ namespace TcpConnectors.Utils
 
                 byte[] data = new byte[packetBytesRecived];
                 Array.Copy(workingBuf, i, data, 0, packetBytesRecived);
-                state.m_OnRecv(data);
+                state.m_OnRecv(data , data.Length + state.m_bytesLenBuf);
                 i += packetBytesRecived;
             }
             if (state.m_recvLoop)

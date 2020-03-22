@@ -26,11 +26,14 @@ namespace TcpConnectors
             _connectedTime = DateTime.UtcNow;
         }
 
-        internal void OnRecv(byte[] buf)
+        internal void OnRecv(byte[] buf, int grossRecvBytes)
         {
             try
             {
-                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.Info, "Recv stated");
+                TotalDataBytesReceived += buf.Length;
+                TotalGrossBytesReceived += grossRecvBytes;
+
+                _serverConnectors.TriggerOnDebugLog(this, DebugLogType.Info, $"OnRecv - start, dataRecvBytes:{buf.Length}, grossRecvBytes:{grossRecvBytes}, TotalDataBytesReceived:{TotalDataBytesReceived}, TotalGrossBytesReceived:{TotalGrossBytesReceived}");
 
                 if (buf[0] == 0) //request response packet
                 {
@@ -177,9 +180,12 @@ namespace TcpConnectors
             TcpSocketsUtils.Send(Socket, resBuf, OnSend, OnExcp);
         }
 
-        internal void OnSend()
+        internal void OnSend(int dataSentBytes, int grossSentBytes)
         {
-            _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnSend, "");
+            TotalDataBytesSent += dataSentBytes;
+            TotalGrossBytesSent += grossSentBytes;
+
+            _serverConnectors.TriggerOnDebugLog(this, DebugLogType.OnSend, $"dataSentBytes:{dataSentBytes}, grossSentBytes:{grossSentBytes}, TotalDataBytesSent:{TotalDataBytesSent}, TotalGrossBytesSent:{TotalGrossBytesSent}");
             //Console.WriteLine("ServerConnectorContext.OnSend()");
         }
 

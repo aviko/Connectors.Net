@@ -15,6 +15,7 @@ namespace StressSimulatorClient
         public int NumOfClients { get; set; }
         public int ReportRequestSecondsInterval { get; set; }
         public string ServerAddress { get; set; }
+        public int ReconnectMinutsInterval { get; set; }
     }
 
     class Program

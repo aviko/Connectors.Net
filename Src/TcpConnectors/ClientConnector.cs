@@ -23,6 +23,10 @@ namespace TcpConnectors
     public partial class ClientConnector : IDisposable
     {
         public bool IsConnected { get; private set; } = false;
+        public long TotalDataBytesReceived { get; private set; } = 0;
+        public long TotalGrossBytesReceived { get; private set; } = 0;
+        public long TotalDataBytesSent { get; private set; } = 0;
+        public long TotalGrossBytesSent { get; private set; } = 0;
 
         public ClientConnector(ClientConnectorSettings settings)
         {

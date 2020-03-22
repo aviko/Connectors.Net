@@ -14,6 +14,7 @@ namespace StressSimulatorClient
         private static Dictionary<Tuple<int, int>, Type> _packetsMap;
         private ClientConnector _clientConnector = null;
         private System.Timers.Timer _reportRequestTimer = null;
+        private System.Timers.Timer _reconnectTimer = null;
         private static int _randSeed = 100;
         private Random _rnd = new Random(_randSeed++);
 
@@ -23,6 +24,20 @@ namespace StressSimulatorClient
         }
 
         public ClientBot()
+        {
+            InitClientConnector();
+
+            _reportRequestTimer = new System.Timers.Timer(1000);
+            _reportRequestTimer.Elapsed += ReportRequestTimer_Elapsed; ;
+            _reportRequestTimer.Start();
+
+            _reconnectTimer = new System.Timers.Timer(60 * 1000);
+            _reconnectTimer.Elapsed += ReconnectTimer_Elapsed; ;
+            _reconnectTimer.Start();
+
+        }
+
+        private void InitClientConnector()
         {
             _clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
@@ -41,20 +56,34 @@ namespace StressSimulatorClient
             object loginResponse = null;
             try { loginResponse = _clientConnector.SendRequest(new LoginRequestPacket { Username = "test" }); } catch (Exception ex) { Console.WriteLine("Exception on first packet:" + ex.ToString()); }
             Console.WriteLine($"Response loginResponse:{JsonConvert.SerializeObject(loginResponse)}");
-
-            _reportRequestTimer = new System.Timers.Timer(1000);
-            _reportRequestTimer.Elapsed += ReportRequest_Elapsed; ;
-            _reportRequestTimer.Start();
-
         }
 
-        private void ReportRequest_Elapsed(object sender, ElapsedEventArgs e)
+        private void ReportRequestTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (_rnd.Next(Program.AppSettingsClient.ReportRequestSecondsInterval) == 0)
+            if (Program.AppSettingsClient.ReportRequestSecondsInterval == 0) return;
+            try
             {
-                var res = _clientConnector.SendRequest(new ReportRequestPacket() { ReportName = "X" }) as ReportResponsePacket;
-                Console.WriteLine(res.Records.Count);
+                if (_rnd.Next(Program.AppSettingsClient.ReportRequestSecondsInterval) == 0)
+                {
+                    var res = _clientConnector.SendRequest(new ReportRequestPacket() { ReportName = "X" }) as ReportResponsePacket;
+                    Console.WriteLine(res.Records.Count);
+                }
             }
+            catch (Exception ex) { }
+        }
+
+        private void ReconnectTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (Program.AppSettingsClient.ReconnectMinutsInterval == 0) return;
+            try
+            {
+                if (_rnd.Next(Program.AppSettingsClient.ReconnectMinutsInterval) == 0)
+                {
+                    _clientConnector.Dispose();
+                    InitClientConnector();
+                }
+            }
+            catch (Exception ex) { }
         }
 
         private void ClientConnector_OnDisconnect()
