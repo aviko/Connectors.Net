@@ -31,6 +31,7 @@ namespace TestSimpleEchoClient
 
             try { _clientConnector.Send(1, 1, "start"); } catch (Exception ex) { Console.WriteLine("Exception on first packet:" + ex.ToString()); }
 
+
             while (true)
             {
                 try

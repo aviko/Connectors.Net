@@ -74,10 +74,12 @@ namespace TestRequestMultiResponseServer
         private static object ServerConnectors_OnRequestPacket(ServerConnectorContext connectorContext, int module, int command, object packet)
         {
             var list = new List<string>();
+            //var n = 35_000_000;
+            var n = 3_500_000;
 
             //throw new Exception("ServerConnectors_OnRequestPacket");
 
-            for (int i = 0; i < 35_000_000; i++)
+            for (int i = 0; i < n ; i++)
             {
                 list.Add(i.ToString());
                 if (i % 1000000 == 0) Console.WriteLine(i);

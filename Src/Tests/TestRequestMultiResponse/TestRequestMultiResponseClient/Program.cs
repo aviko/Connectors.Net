@@ -13,6 +13,8 @@ namespace TestRequestMultiResponseClient
         {
             Console.WriteLine("TestRequestMultiResponseClient");
 
+            var serverIp = "127.0.0.1";
+            //var serverIp = "83.151.199.77";
 
             _clientConnector = new ClientConnector(new ClientConnectorSettings()
             {
@@ -20,7 +22,7 @@ namespace TestRequestMultiResponseClient
                     { new Tuple<int, int>(1, 1), typeof(GetListResponsePacket) },
                     { new Tuple<int, int>(1, 2), typeof(GetListResponsePacket) },
                 },
-                ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>("127.0.0.1", 1112) }
+                ServerAddressList = new List<Tuple<string, int>>() { new Tuple<string, int>(serverIp, 1112) }
             });
 
             _clientConnector.OnPacket += ClientConnector_OnPacket;
@@ -49,11 +51,15 @@ namespace TestRequestMultiResponseClient
                     {
                         Console.WriteLine("Perform Request - multi responses");
 
-                        _clientConnector.SendRequestMultiResponses(
-                            1, 
-                            2, 
-                            new GetListRequestPacket(),
-                            MultiResponseCallback);
+                        for (int i = 0; i < 10; i++)
+                        {
+
+                            _clientConnector.SendRequestMultiResponses(
+                                1,
+                                2,
+                                new GetListRequestPacket(),
+                                MultiResponseCallback);
+                        }
 
                         //var resPacket = _clientConnector.SendRequest(1, 1, new GetListRequestPacket()) as GetListResponsePacket;
                         //Console.WriteLine($"response packet:{JsonConvert.SerializeObject(resPacket)}");

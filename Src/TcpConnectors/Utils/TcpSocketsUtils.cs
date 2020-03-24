@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace TcpConnectors.Utils
 {
@@ -16,12 +17,14 @@ namespace TcpConnectors.Utils
         public delegate void OnSendDlgt(int dataSentBytes, int grossSentBytes);
         private class SendState
         {
+            public long m_sendId;
             public Socket m_socket;
             public OnSendDlgt m_onSend;
             public OnExcpDlgt m_onExcp;
             public byte[] m_buf;
             public int m_bytesSentSoFar;
             public int m_bytesLenBuf;
+            public DateTime m_startSendTime;
         }
 
         private static void ConvertIntToArray(int Val, out byte[] OutArray)
@@ -43,6 +46,8 @@ namespace TcpConnectors.Utils
             }
         }
 
+        private static long _sendId = 1;
+
         // Send a string on the given socket.
         // The onSocket delegate will be executed once the send action has ended
         public static void Send(Socket socket, byte[] bufferToSend, OnSendDlgt onSend, OnExcpDlgt onExcp)
@@ -54,23 +59,34 @@ namespace TcpConnectors.Utils
                 ConvertIntToArray(bufferToSend.Length, out lenBuf);
 
                 SendState state = new SendState();
+                state.m_sendId = Interlocked.Increment(ref _sendId);
                 state.m_socket = socket;
                 state.m_onSend = onSend;
                 state.m_onExcp = onExcp;
                 state.m_buf = new byte[lenBuf.Length + bufferToSend.Length];
                 state.m_bytesLenBuf = lenBuf.Length;
                 state.m_bytesSentSoFar = 0;
+                state.m_startSendTime = DateTime.UtcNow;
                 Buffer.BlockCopy(lenBuf, 0, state.m_buf, 0, lenBuf.Length);
                 Buffer.BlockCopy(bufferToSend, 0, state.m_buf, lenBuf.Length, bufferToSend.Length);
 
                 //Begin sending the data to the remote device.
-                state.m_socket.BeginSend(
+                var asyncResult = state.m_socket.BeginSend(
                     state.m_buf,
                     0,
                     state.m_buf.Length,
                     0,
                     new AsyncCallback(SendCallback),
                     state);
+
+
+                //var isSignaled = asyncResult.AsyncWaitHandle.WaitOne(0);
+                //if (isSignaled == false)
+                //{
+                //    ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, SendCompleteCallback, state, -1, true);
+                //    Console.WriteLine($"* asyncResult: IsCompleted:{asyncResult.IsCompleted} socket Handle: {state.m_socket.Handle.ToInt32()} sendId: #{state.m_sendId}");
+                //}
+
             }
             catch (ObjectDisposedException)
             {
@@ -82,6 +98,13 @@ namespace TcpConnectors.Utils
                 onExcp(e);
             }
         }
+
+        //private static void SendCompleteCallback(object stateObj, bool timedOut)
+        //{
+        //    SendState state = (SendState)stateObj;
+        //    var timespan = DateTime.UtcNow - state.m_startSendTime;
+        //    Console.WriteLine($"* SendCompleteCallback ms:{timespan.TotalMilliseconds:0,0.00} socket Handle: {state.m_socket.Handle.ToInt32()} sendId: #{state.m_sendId}");
+        //}
 
         private static void SendCallback(IAsyncResult ar)
         {
@@ -111,10 +134,16 @@ namespace TcpConnectors.Utils
                 }
                 else
                 {
+                    var timespan = DateTime.UtcNow - state.m_startSendTime;
+                    if (timespan.Milliseconds > 10)
+                    {
+                        Console.WriteLine($"* send timespan is high ms:{timespan.TotalMilliseconds:0,0.00}  socket Handle: {state.m_socket.Handle.ToInt32()} sendId: #{state.m_sendId}");
+                    }
+
+                    // Signal that all bytes have been sent.
                     state.m_onSend(state.m_buf.Length - state.m_bytesLenBuf, state.m_buf.Length);
                 }
 
-                // Signal that all bytes have been sent.
             }
             catch (ObjectDisposedException)
             {
@@ -297,7 +326,7 @@ namespace TcpConnectors.Utils
 
                 byte[] data = new byte[packetBytesRecived];
                 Array.Copy(workingBuf, i, data, 0, packetBytesRecived);
-                state.m_OnRecv(data , data.Length + state.m_bytesLenBuf);
+                state.m_OnRecv(data, data.Length + state.m_bytesLenBuf);
                 i += packetBytesRecived;
             }
             if (state.m_recvLoop)
