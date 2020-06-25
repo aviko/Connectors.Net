@@ -14,7 +14,15 @@
     <RepositoryUrl>https://github.com/aviko/TcpConnectors.Net</RepositoryUrl>
     <AssemblyVersion>0.2.6.1</AssemblyVersion>
     <FileVersion>0.2.6.1</FileVersion>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="BinaryConverter.Net" Version="0.1.8" />
