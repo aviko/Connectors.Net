@@ -93,6 +93,11 @@ namespace TcpConnectors
             GetModuleCommandValues(server2ClientPacket.GetType(), out var module, out var command);
             serverConnectors.Send(filter, module, command, server2ClientPacket);
         }
+        public static void Send(this ServerConnectors serverConnectors, int contextId, IServer2ClientPacket server2ClientPacket)
+        {
+            GetModuleCommandValues(server2ClientPacket.GetType(), out var module, out var command);
+            serverConnectors.Send(contextId, module, command, server2ClientPacket);
+        }
 
         public static void SendMultiResponse<T>(this ServerConnectorContext serverConnectorContext, int module, int command, int requestId,
             RequestMultiResponsesServerCallback callback, IMultiResponseListPacket<T> packet, List<T> list, int chunkSize = 1000)

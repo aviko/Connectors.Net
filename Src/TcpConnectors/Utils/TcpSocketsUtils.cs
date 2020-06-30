@@ -134,11 +134,11 @@ namespace TcpConnectors.Utils
                 }
                 else
                 {
-                    var timespan = DateTime.UtcNow - state.m_startSendTime;
-                    if (timespan.Milliseconds > 10)
-                    {
-                        Console.WriteLine($"* send timespan is high ms:{timespan.TotalMilliseconds:0,0.00}  socket Handle: {state.m_socket.Handle.ToInt32()} sendId: #{state.m_sendId}");
-                    }
+                    //var timespan = DateTime.UtcNow - state.m_startSendTime;
+                    //if (timespan.Milliseconds > 10)
+                    //{
+                    //    Console.WriteLine($"* send timespan is high ms:{timespan.TotalMilliseconds:0,0.00}  socket Handle: {state.m_socket.Handle.ToInt32()} sendId: #{state.m_sendId}");
+                    //}
 
                     // Signal that all bytes have been sent.
                     state.m_onSend(state.m_buf.Length - state.m_bytesLenBuf, state.m_buf.Length);
